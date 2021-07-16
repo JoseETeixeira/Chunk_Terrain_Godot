@@ -1,0 +1,20 @@
+# SCsub
+
+Import('env')
+
+chunk_files = [
+
+	"*.cpp",
+
+	"generator/*.cpp",
+	"terrain/*.cpp",
+
+	"util/*.cpp",
+	"util/godot/*.cpp",
+	"util/noise/*.cpp",
+	"util/noise/fast_noise_lite.cpp",
+	"util/noise/fast_noise_lite_gradient.cpp",
+
+]
+
+env.add_source_files(env.modules_sources, chunk_files)

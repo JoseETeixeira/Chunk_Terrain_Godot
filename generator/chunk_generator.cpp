@@ -7,6 +7,11 @@
 
 void ChunkGenerator::_notification(int p_what) {
 	switch (p_what) {
+		case NOTIFICATION_READY:
+			generate_chunk();
+			break;
+
+
 		case NOTIFICATION_PARENTED:
 			_parent = Object::cast_to<ChunkTerrain>(get_parent());
 			if (_parent != nullptr) {
@@ -14,9 +19,9 @@ void ChunkGenerator::_notification(int p_what) {
                 set_x(_parent->get_x());
                 set_z(_parent->get_z());
                 set_chunk_size(_parent->get_chunk_size());
+				set_noise(_parent->get_noise());
 
 			}
-			// TODO may want to reload all instances? Not sure if worth implementing that use case
 			break;
 
 		case NOTIFICATION_UNPARENTED:
@@ -32,6 +37,8 @@ void ChunkGenerator::_notification(int p_what) {
 	}
 }
 ChunkGenerator::~ChunkGenerator() {
+	memdelete(_data_tool);
+	memdelete(_surface_tool);
 }
 
 void ChunkGenerator::set_noise(Ref<OpenSimplexNoise> noise) {
@@ -47,6 +54,7 @@ void ChunkGenerator::set_noise(Ref<OpenSimplexNoise> noise) {
 void ChunkGenerator::_on_noise_changed() {
 	ERR_FAIL_COND(_noise.is_null());
 	print_line("-------- NOISE CHANGED ----------");
+	generate_chunk();
     //TODO: CLEAR CHUNKS AND REGENERATE
 }
 
@@ -67,6 +75,7 @@ void ChunkGenerator::set_surface_material(Ref<ShaderMaterial> surface_material) 
 void ChunkGenerator::_on_surface_material_changed() {
 	ERR_FAIL_COND(_surface_material.is_null());
 	print_line("-------- SURFACE MATERIAL CHANGED ----------");
+	generate_chunk();
     //TODO: CLEAR CHUNKS AND REGENERATE
 }
 
@@ -88,48 +97,53 @@ void ChunkGenerator::set_chunk_size(int chunk_size){
 }
 
 virtual void ChunkGenerator::generate_chunk(){
-    if(_parent!=nullptr){
-        memdelete(_data_tool);
-        memdelete(_surface_tool);
-        _data_tool = memnew(MeshDataTool());
-        _surface_tool = memnew(SurfaceTool());
-        Chunk *chunk = memnew(Chunk());
-        Ref<PlaneMesh> plane_mesh = memnew(Ref<PlaneMesh>());
-        plane_mesh->set_size(Vector2(_chunk_size, _chunk_size));
-        plane_mesh->set_subdivide_depth(_chunk_size * 0.5);
-        plane_mesh->set_subdivide_width( _chunk_size * 0.5);
-        plane_mesh->set_material(get_surface_material());
-        _surface_tool->create_from(plane_mesh, 0);
-        Ref<ArrayMesh> array_plane = _surface_tool.commit();
-        Error error = _data_tool->create_from_surface(array_plane, 0);
+	_chunks.clear();
+	if(this->has_children()){
+		for (auto it=0; it!=this->get_child_count(); ++it){
+			MeshInstance *mi = Object::cast_to<MeshInstance>(this->get_child(it));
+			if(mi != nullptr) {
+				memdelete(mi);
+			}
+		}
+	}
 
-        for (auto it = 0; it < _data_tool->get_vertex_count(); ++it) {
-            Vector3 vertex = _data_tool->get_vertex(it);
-            vertex.y =  Math::ceil(_noise->get_noise_3d(vertex.x + _x, vertex.y, vertex.z + _z) * 400);
-            _data_tool->set_vertex(it,vertex);
-            chunk->grid_positions.push_back(Vector3i(vertex.x,vertex.y,vertex.z));
-        }
+	_data_tool = memnew(MeshDataTool());
+	_surface_tool = memnew(SurfaceTool());
+	Chunk *chunk = memnew(Chunk());
+	Ref<PlaneMesh> plane_mesh = memnew(Ref<PlaneMesh>());
+	plane_mesh->set_size(Vector2(_chunk_size, _chunk_size));
+	plane_mesh->set_subdivide_depth(_chunk_size * 0.5);
+	plane_mesh->set_subdivide_width( _chunk_size * 0.5);
+	plane_mesh->set_material(get_surface_material());
+	_surface_tool->create_from(plane_mesh, 0);
+	Ref<ArrayMesh> array_plane = _surface_tool.commit();
+	Error error = _data_tool->create_from_surface(array_plane, 0);
 
-        for (auto it = 0; it < array_plane->get_surface_count(); ++it) {
-            array_plane->surface_remove(it);
-        }
+	for (auto it = 0; it < _data_tool->get_vertex_count(); ++it) {
+		Vector3 vertex = _data_tool->get_vertex(it);
+		vertex.y =  Math::ceil(_noise->get_noise_3d(vertex.x + _x, vertex.y, vertex.z + _z) * 400);
+		_data_tool->set_vertex(it,vertex);
+		chunk->grid_positions.push_back(Vector3i(vertex.x,vertex.y,vertex.z));
+	}
 
-        _data_tool->commit_to_surface(array_plane);
-        _surface_tool->begin(Mesh::PrimitiveType::PRIMITIVE_TRIANGLES);
-        _surface_tool->create_from(array_plane, 0);
-        _surface_tool->generate_normals();
+	for (auto it = 0; it < array_plane->get_surface_count(); ++it) {
+		array_plane->surface_remove(it);
+	}
 
-        chunk->mesh_instance = memnew(Ref<MeshInstance>());
+	_data_tool->commit_to_surface(array_plane);
+	_surface_tool->begin(Mesh::PrimitiveType::PRIMITIVE_TRIANGLES);
+	_surface_tool->create_from(array_plane, 0);
+	_surface_tool->generate_normals();
 
-        chunk->mesh_instance->mesh = _surface_tool.commit();
+	chunk->mesh_instance = memnew(Ref<MeshInstance>());
 
-        chunk->mesh_instance->create_trimesh_collision();
-        MeshInstance chunk_mesh = chunk->mesh_instance.instance();
-        _chunks->push_back(chunk);
-        add_child(chunk_mesh);
-		memdelete(plane_mesh);
-    }
+	chunk->mesh_instance->mesh = _surface_tool.commit();
 
+	chunk->mesh_instance->create_trimesh_collision();
+	MeshInstance chunk_mesh = chunk->mesh_instance.instance();
+	_chunks->push_back(chunk);
+	add_child(chunk_mesh);
+	memdelete(plane_mesh);
 
 }
 
@@ -149,6 +163,5 @@ void ChunkGenerator::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("generate_chunk"), &ChunkGenerator::generate_chunk);
 
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "noise", PROPERTY_HINT_RESOURCE_TYPE, "OpenSimplexNoise"), "set_noise", "get_noise");
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "surface_material", PROPERTY_HINT_RESOURCE_TYPE, "ShaderMaterial"), "set_surface_material", "get_surface_material");
 }
