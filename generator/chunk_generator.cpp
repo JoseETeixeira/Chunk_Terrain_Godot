@@ -41,7 +41,7 @@ void ChunkGenerator::set_noise(Ref<OpenSimplexNoise> noise) {
 	_noise->disconnect(CoreStringNames::get_singleton()->changed, this, "_on_noise_changed");
 	_noise = noise;
 	_noise->connect(CoreStringNames::get_singleton()->changed, this, "_on_noise_changed");
-	
+
 }
 
 void ChunkGenerator::_on_noise_changed() {
@@ -61,7 +61,7 @@ void ChunkGenerator::set_surface_material(Ref<ShaderMaterial> surface_material) 
 	_surface_material->disconnect(CoreStringNames::get_singleton()->changed, this, "_on_surface_material_changed");
 	_surface_material = surface_material;
 	_surface_material->connect(CoreStringNames::get_singleton()->changed, this, "_on_surface_material_changed");
-	
+
 }
 
 void ChunkGenerator::_on_surface_material_changed() {
@@ -113,24 +113,42 @@ virtual void ChunkGenerator::generate_chunk(){
         for (auto it = 0; it < array_plane->get_surface_count(); ++it) {
             array_plane->surface_remove(it);
         }
-        
+
         _data_tool->commit_to_surface(array_plane);
         _surface_tool->begin(Mesh::PrimitiveType::PRIMITIVE_TRIANGLES);
         _surface_tool->create_from(array_plane, 0);
         _surface_tool->generate_normals();
-        
+
         chunk->mesh_instance = memnew(Ref<MeshInstance>());
-        
+
         chunk->mesh_instance->mesh = _surface_tool.commit();
 
         chunk->mesh_instance->create_trimesh_collision();
         MeshInstance chunk_mesh = chunk->mesh_instance.instance();
         _chunks->push_back(chunk);
-        
         add_child(chunk_mesh);
+		memdelete(plane_mesh);
     }
-    
+
 
 }
 
 
+void ChunkGenerator::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("set_noise", "noise"), &ChunkGenerator::set_noise);
+	ClassDB::bind_method(D_METHOD("get_noise"), &ChunkGenerator::get_noise);
+	ClassDB::bind_method(D_METHOD("_on_noise_changed"), &ChunkGenerator::_on_noise_changed);
+
+	ClassDB::bind_method(D_METHOD("set_x", "x"), &ChunkGenerator::set_x);
+	ClassDB::bind_method(D_METHOD("set_z", "z"), &ChunkGenerator::set_z);
+	ClassDB::bind_method(D_METHOD("set_chunk_size", "chunk_size"), &ChunkGenerator::set_chunk_size);
+
+	ClassDB::bind_method(D_METHOD("set_surface_material", "surface_material"), &ChunkGenerator::set_surface_material);
+	ClassDB::bind_method(D_METHOD("get_surface_material"), &ChunkGenerator::get_surface_material);
+	ClassDB::bind_method(D_METHOD("_on_surface_material_changed"), &ChunkGenerator::_on_surface_material_changed);
+
+	ClassDB::bind_method(D_METHOD("generate_chunk"), &ChunkGenerator::generate_chunk);
+
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "noise", PROPERTY_HINT_RESOURCE_TYPE, "OpenSimplexNoise"), "set_noise", "get_noise");
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "surface_material", PROPERTY_HINT_RESOURCE_TYPE, "ShaderMaterial"), "set_surface_material", "get_surface_material");
+}
