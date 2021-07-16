@@ -95,10 +95,10 @@ virtual void ChunkGenerator::generate_chunk(){
         _surface_tool = memnew(SurfaceTool());
         Chunk *chunk = memnew(Chunk());
         Ref<PlaneMesh> plane_mesh = memnew(Ref<PlaneMesh>());
-        plane_mesh->size = Vector2(_chunk_size, _chunk_size);
-        plane_mesh->subdivide_depth = _chunk_size * 0.5;
-        plane_mesh->subdivide_width = _chunk_size * 0.5;
-        plane_mesh->material =get_surface_material();
+        plane_mesh->set_size(Vector2(_chunk_size, _chunk_size));
+        plane_mesh->set_subdivide_depth(_chunk_size * 0.5);
+        plane_mesh->set_subdivide_width( _chunk_size * 0.5);
+        plane_mesh->set_material(get_surface_material());
         _surface_tool->create_from(plane_mesh, 0);
         Ref<ArrayMesh> array_plane = _surface_tool.commit();
         Error error = _data_tool->create_from_surface(array_plane, 0);
