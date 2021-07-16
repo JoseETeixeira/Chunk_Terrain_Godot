@@ -105,7 +105,7 @@ virtual void ChunkGenerator::generate_chunk(){
 
         for (auto it = 0; it < _data_tool->get_vertex_count(); ++it) {
             Vector3 vertex = _data_tool->get_vertex(it);
-            vertex.y =  ceil(_noise->get_noise_3d(vertex.x + _x, vertex.y, vertex.z + _z) * 400);
+            vertex.y =  Math::ceil(_noise->get_noise_3d(vertex.x + _x, vertex.y, vertex.z + _z) * 400);
             _data_tool->set_vertex(it,vertex);
             chunk->grid_positions.push_back(Vector3i(vertex.x,vertex.y,vertex.z));
         }
