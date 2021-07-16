@@ -1,0 +1,14 @@
+# SCsub
+
+Import('env')
+
+env.add_source_files(env.modules_sources, "*.cpp")
+
+chunk_files = [
+
+	"generator/chunk_generator.cpp",
+	"terrain/chunk_terrain.cpp",
+
+]
+
+env.add_source_files(env.modules_sources, chunk_files)

@@ -12,7 +12,7 @@ void ChunkTerrain::_notification(int p_what) {
 			_thead = memnew(Thread());
 			break;
 		case NOTIFICATION_EXIT_TREE:
-			memdelete(_generator);
+			//memdelete(_generator);
 			break;
 		case NOTIFICATION_PROCESS:
 			_process(get_process_delta_time());
@@ -62,11 +62,46 @@ void ChunkTerrain::set_noise(Ref<OpenSimplexNoise> noise) {
 void ChunkTerrain::_on_noise_changed() {
 	ERR_FAIL_COND(_noise.is_null());
 	print_line("-------- NOISE CHANGED ----------");
+	if(this->has_children()){
+		for (auto it=0; it!=this->get_child_count(); ++it){
+			ChunkGenerator *cg = Object::cast_to<ChunkGenerator>(this->get_child(it));
+			if(cg != nullptr) {
+				cg->set_noise(_noise);
+			}
+		}
+	}
     //TODO: CLEAR CHUNKS AND REGENERATE
 }
 
 Ref<OpenSimplexNoise> ChunkTerrain::get_noise() const {
 	return _noise;
+}
+void ChunkTerrain::set_surface_material(Ref<ShaderMaterial> surface_material) {
+	if (_surface_material == surface_material) {
+		return;
+	}
+	_surface_material->disconnect(CoreStringNames::get_singleton()->changed, this, "_on_surface_material_changed");
+	_surface_material = surface_material;
+	_surface_material->connect(CoreStringNames::get_singleton()->changed, this, "_on_surface_material_changed");
+
+}
+
+void ChunkTerrain::_on_surface_material_changed() {
+	ERR_FAIL_COND(_surface_material.is_null());
+	print_line("-------- SURFACE MATERIAL CHANGED ----------");
+	if(this->has_children()){
+		for (auto it=0; it!=this->get_child_count(); ++it){
+			ChunkGenerator *cg = Object::cast_to<ChunkGenerator>(this->get_child(it));
+			if(cg != nullptr) {
+				cg->set_surface_material(_surface_material);
+			}
+		}
+	}
+    //TODO: CLEAR CHUNKS AND REGENERATE
+}
+
+Ref<ShaderMaterial> ChunkGenerator::get_surface_material() const {
+	return _surface_material;
 }
 
 
@@ -85,7 +120,12 @@ void ChunkTerrain::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_noise"), &ChunkTerrain::get_noise);
 	ClassDB::bind_method(D_METHOD("_on_noise_changed"), &ChunkTerrain::_on_noise_changed);
 
+	ClassDB::bind_method(D_METHOD("set_surface_material", "surface_material"), &ChunkTerrain::set_surface_material);
+	ClassDB::bind_method(D_METHOD("get_surface_material"), &ChunkTerrain::get_surface_material);
+	ClassDB::bind_method(D_METHOD("_on_surface_material_changed"), &ChunkTerrain::_on_surface_material_changed);
+
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "noise", PROPERTY_HINT_RESOURCE_TYPE, "OpenSimplexNoise"), "set_noise", "get_noise");
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "surface_material", PROPERTY_HINT_RESOURCE_TYPE, "ShaderMaterial"), "set_surface_material", "get_surface_material");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "x"), "set_x", "get_x");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "z"), "set_z", "get_z");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "chunk_size"), "set_chunk_size", "get_chunk_size");

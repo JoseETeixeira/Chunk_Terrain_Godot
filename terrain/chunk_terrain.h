@@ -2,10 +2,11 @@
 #ifndef CHUNK_TERRAIN_H
 #define CHUNK_TERRAIN_H
 
-#include "<core/reference>"
+#include "../../core/reference.h"
 #include "../../core/os/thread.h"
 #include "../../modules/opensimplex/open_simplex_noise.h"
 #include "../../scene/resources/material.h"
+#include <scene/3d/spatial.h>
 
 
 class ChunkGenerator;
@@ -42,10 +43,13 @@ public:
     Ref<ShaderMaterial> get_surface_material() const;
 
 
+
     ChunkTerrain();
     ~ChunkTerrain();
 
 private:
+
+
     uint32_t _x;
     uint32_t _z;
     int _chunk_size;

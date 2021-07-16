@@ -8,6 +8,7 @@
 #include "../../scene/resources/material.h"
 #include "../util/math/vector3i.h"
 #include "../../modules/opensimplex/open_simplex_noise.h"
+#include <scene/3d/spatial.h>
 
 class ChunkTerrain;
 
@@ -36,7 +37,7 @@ protected:
 
 private:
     struct Chunk;
-    
+
     uint32_t _x;
     uint32_t _z;
     Ref<OpenSimplexNoise> _noise;

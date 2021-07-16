@@ -102,7 +102,7 @@ virtual void ChunkGenerator::generate_chunk(){
 		for (auto it=0; it!=this->get_child_count(); ++it){
 			MeshInstance *mi = Object::cast_to<MeshInstance>(this->get_child(it));
 			if(mi != nullptr) {
-				memdelete(mi);
+				mi->queue_free();
 			}
 		}
 	}
@@ -163,5 +163,5 @@ void ChunkGenerator::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("generate_chunk"), &ChunkGenerator::generate_chunk);
 
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "surface_material", PROPERTY_HINT_RESOURCE_TYPE, "ShaderMaterial"), "set_surface_material", "get_surface_material");
+
 }
