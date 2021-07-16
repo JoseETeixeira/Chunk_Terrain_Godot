@@ -125,6 +125,7 @@ virtual void ChunkGenerator::generate_chunk(){
 
         chunk->mesh_instance->create_trimesh_collision();
         MeshInstance chunk_mesh = chunk->mesh_instance.instance();
+        _chunks->push_back(chunk);
         
         add_child(chunk_mesh);
     }
