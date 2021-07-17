@@ -31,8 +31,6 @@ public:
 
 protected:
 	static void _bind_methods();
-    void _on_noise_changed();
-    void _on_surface_material_changed();
     void _notification(int p_what);
 
 private:

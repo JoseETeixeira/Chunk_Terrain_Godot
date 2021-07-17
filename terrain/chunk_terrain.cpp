@@ -103,9 +103,9 @@ Ref<ShaderMaterial> ChunkTerrain::get_surface_material() {
 void ChunkTerrain::set_generator(ChunkGenerator *generator){
 	if (_generator == generator){
 		return;
-	}else{
-		_generator = generator;
 	}
+	_generator = generator;
+
 }
 
 
