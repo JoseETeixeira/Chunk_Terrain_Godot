@@ -55,7 +55,7 @@ private:
     struct Chunk {
 		// Position in mesh block coordinate system
 		std::vector<Vector3i> grid_positions;
-		Ref<MeshInstance> mesh_instance;
+		MeshInstance* mesh_instance;
 	};
     ChunkTerrain *_parent;
     std::vector<Chunk *> _chunks; // Does not have nulls

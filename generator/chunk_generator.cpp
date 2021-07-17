@@ -136,12 +136,10 @@ void ChunkGenerator::generate_chunk(){
 	_surface_tool->begin(Mesh::PrimitiveType::PRIMITIVE_TRIANGLES);
 	_surface_tool->create_from(array_plane, 0);
 	_surface_tool->generate_normals();
-
+	chunk->mesh_instance = memnew(MeshInstance());
 	chunk->mesh_instance->set_mesh(_surface_tool->commit());
-
 	chunk->mesh_instance->create_trimesh_collision();
 	_chunks.push_back(chunk);
-	chunk->mesh_instance.instance();
 	add_child(chunk->mesh_instance);
 
 }
