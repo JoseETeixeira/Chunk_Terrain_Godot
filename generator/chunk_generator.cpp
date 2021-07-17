@@ -3,6 +3,8 @@
 #include "../../core/math/vector2.h"
 #include "../../core/math/vector3.h"
 #include "../../scene/resources/mesh.h"
+#include <core/core_string_names.h>
+#include "../terrain/chunk_terrain.h"
 
 
 void ChunkGenerator::_notification(int p_what) {
@@ -58,7 +60,7 @@ void ChunkGenerator::_on_noise_changed() {
     //TODO: CLEAR CHUNKS AND REGENERATE
 }
 
-Ref<OpenSimplexNoise> ChunkGenerator::get_noise() const {
+Ref<OpenSimplexNoise> ChunkGenerator::get_noise()  {
 	return _noise;
 }
 
@@ -79,7 +81,7 @@ void ChunkGenerator::_on_surface_material_changed() {
     //TODO: CLEAR CHUNKS AND REGENERATE
 }
 
-Ref<ShaderMaterial> ChunkGenerator::get_surface_material() const {
+Ref<ShaderMaterial> ChunkGenerator::get_surface_material()  {
 	return _surface_material;
 }
 
@@ -96,13 +98,13 @@ void ChunkGenerator::set_chunk_size(int chunk_size){
     _chunk_size = chunk_size;
 }
 
-virtual void ChunkGenerator::generate_chunk(){
+void ChunkGenerator::generate_chunk(){
 	_chunks.clear();
-	if(this->has_children()){
+	if( this->get_child_count() > 0){
 		for (auto it=0; it!=this->get_child_count(); ++it){
 			MeshInstance *mi = Object::cast_to<MeshInstance>(this->get_child(it));
 			if(mi != nullptr) {
-				mi->queue_free();
+				memdelete(mi);
 			}
 		}
 	}
@@ -116,7 +118,7 @@ virtual void ChunkGenerator::generate_chunk(){
 	plane_mesh->set_subdivide_width( _chunk_size * 0.5);
 	plane_mesh->set_material(get_surface_material());
 	_surface_tool->create_from(plane_mesh, 0);
-	Ref<ArrayMesh> array_plane = _surface_tool.commit();
+	Ref<ArrayMesh> array_plane = _surface_tool->commit();
 	Error error = _data_tool->create_from_surface(array_plane, 0);
 
 	for (auto it = 0; it < _data_tool->get_vertex_count(); ++it) {
@@ -135,15 +137,12 @@ virtual void ChunkGenerator::generate_chunk(){
 	_surface_tool->create_from(array_plane, 0);
 	_surface_tool->generate_normals();
 
-	chunk->mesh_instance = memnew(Ref<MeshInstance>());
-
-	chunk->mesh_instance->mesh = _surface_tool.commit();
+	chunk->mesh_instance->set_mesh(_surface_tool->commit());
 
 	chunk->mesh_instance->create_trimesh_collision();
-	MeshInstance chunk_mesh = chunk->mesh_instance.instance();
-	_chunks->push_back(chunk);
-	add_child(chunk_mesh);
-	memdelete(plane_mesh);
+	_chunks.push_back(chunk);
+	chunk->mesh_instance.instance();
+	add_child(chunk->mesh_instance);
 
 }
 

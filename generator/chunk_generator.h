@@ -18,15 +18,15 @@ public:
 	ChunkGenerator();
     ~ChunkGenerator();
 
-	virtual void generate_chunk();
+	void generate_chunk();
     //virtual void generate_water();
 
     void set_noise(Ref<OpenSimplexNoise> noise);
-    Ref<OpenSimplexNoise> get_noise()const;
+    Ref<OpenSimplexNoise> get_noise();
 
     //TODO: get_chunks
     void set_surface_material(Ref<ShaderMaterial> surface_material);
-    Ref<ShaderMaterial> get_surface_material() const;
+    Ref<ShaderMaterial> get_surface_material() ;
 
 
 protected:

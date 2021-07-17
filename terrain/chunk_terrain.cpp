@@ -1,6 +1,9 @@
 /* chunk_terrain.cpp */
 
 #include "chunk_terrain.h"
+#include "../generator/chunk_generator.h"
+#include <core/core_string_names.h>
+#include <core/array.h>
 
 void ChunkTerrain::_notification(int p_what) {
 	switch (p_what) {
@@ -9,7 +12,7 @@ void ChunkTerrain::_notification(int p_what) {
 			set_z(0);
 			set_chunk_size(0);
 			set_chunk_amount(0);
-			_thead = memnew(Thread());
+			this->_thread = memnew(Thread());
 			break;
 		case NOTIFICATION_EXIT_TREE:
 			//memdelete(_generator);
@@ -62,18 +65,11 @@ void ChunkTerrain::set_noise(Ref<OpenSimplexNoise> noise) {
 void ChunkTerrain::_on_noise_changed() {
 	ERR_FAIL_COND(_noise.is_null());
 	print_line("-------- NOISE CHANGED ----------");
-	if(this->has_children()){
-		for (auto it=0; it!=this->get_child_count(); ++it){
-			ChunkGenerator *cg = Object::cast_to<ChunkGenerator>(this->get_child(it));
-			if(cg != nullptr) {
-				cg->set_noise(_noise);
-			}
-		}
-	}
+	_generator->set_noise(_noise);
     //TODO: CLEAR CHUNKS AND REGENERATE
 }
 
-Ref<OpenSimplexNoise> ChunkTerrain::get_noise() const {
+Ref<OpenSimplexNoise> ChunkTerrain::get_noise() {
 	return _noise;
 }
 void ChunkTerrain::set_surface_material(Ref<ShaderMaterial> surface_material) {
@@ -89,18 +85,11 @@ void ChunkTerrain::set_surface_material(Ref<ShaderMaterial> surface_material) {
 void ChunkTerrain::_on_surface_material_changed() {
 	ERR_FAIL_COND(_surface_material.is_null());
 	print_line("-------- SURFACE MATERIAL CHANGED ----------");
-	if(this->has_children()){
-		for (auto it=0; it!=this->get_child_count(); ++it){
-			ChunkGenerator *cg = Object::cast_to<ChunkGenerator>(this->get_child(it));
-			if(cg != nullptr) {
-				cg->set_surface_material(_surface_material);
-			}
-		}
-	}
+	_generator->set_surface_material(_surface_material);
     //TODO: CLEAR CHUNKS AND REGENERATE
 }
 
-Ref<ShaderMaterial> ChunkGenerator::get_surface_material() const {
+Ref<ShaderMaterial> ChunkGenerator::get_surface_material() {
 	return _surface_material;
 }
 

@@ -29,18 +29,18 @@ public:
     uint32_t get_z();
 
     void set_chunk_size(int size);
-    int get_chunk_size()const;
+    int get_chunk_size();
 
     void set_chunk_amount(int amount);
-    int get_chunk_amount()const;
+    int get_chunk_amount();
 
     void set_generator(ChunkGenerator *generator);
 
 	void set_noise(Ref<OpenSimplexNoise> noise);
-    Ref<OpenSimplexNoise> get_noise()const;
+    Ref<OpenSimplexNoise> get_noise();
 
 	void set_surface_material(Ref<ShaderMaterial> surface_material);
-    Ref<ShaderMaterial> get_surface_material() const;
+    Ref<ShaderMaterial> get_surface_material() ;
 
 
 
@@ -55,7 +55,7 @@ private:
     int _chunk_size;
     int _chunk_amount;
     ChunkGenerator *_generator = nullptr;
-	Thread *tread = nullptr;
+	Thread *_thread = nullptr;
 	Ref<OpenSimplexNoise> _noise;
 	Ref<ShaderMaterial> _surface_material;
 
