@@ -19,3 +19,6 @@ Basic generator is working
 - TODO:
 
 Auto-generate chunks and handle them
+Generate water
+Generate grass
+Generate trees
