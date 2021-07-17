@@ -5,6 +5,14 @@
 #include <core/core_string_names.h>
 #include <core/array.h>
 
+ChunkTerrain::ChunkTerrain(){
+
+}
+
+ChunkTerrain::~ChunkTerrain(){
+	memdelete(_generator);
+}
+
 void ChunkTerrain::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_ENTER_TREE :
@@ -48,6 +56,15 @@ int ChunkTerrain::get_chunk_size(){
 	return _chunk_size;
 }
 
+void ChunkTerrain::set_chunk_amount(int amount){
+    _chunk_amount = amount;
+}
+
+int ChunkTerrain::get_chunk_amount(){
+	return _chunk_amount;
+}
+
+
 void ChunkTerrain::_process(float delta){
 
 }
@@ -89,8 +106,16 @@ void ChunkTerrain::_on_surface_material_changed() {
     //TODO: CLEAR CHUNKS AND REGENERATE
 }
 
-Ref<ShaderMaterial> ChunkGenerator::get_surface_material() {
+Ref<ShaderMaterial> ChunkTerrain::get_surface_material() {
 	return _surface_material;
+}
+
+void ChunkTerrain::set_generator(ChunkGenerator *generator){
+	if (_generator == generator){
+		return;
+	}else{
+		_generator = generator;
+	}
 }
 
 

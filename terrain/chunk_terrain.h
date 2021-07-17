@@ -40,7 +40,7 @@ public:
     Ref<OpenSimplexNoise> get_noise();
 
 	void set_surface_material(Ref<ShaderMaterial> surface_material);
-    Ref<ShaderMaterial> get_surface_material() ;
+    Ref<ShaderMaterial> get_surface_material();
 
 
 

@@ -6,6 +6,9 @@
 #include <core/core_string_names.h>
 #include "../terrain/chunk_terrain.h"
 
+ChunkGenerator::ChunkGenerator(){
+
+}
 
 void ChunkGenerator::_notification(int p_what) {
 	switch (p_what) {
