@@ -89,16 +89,16 @@ void ChunkGenerator::generate_chunk(){
 	plane_mesh->set_size(Vector2(_chunk_size, _chunk_size));
 	plane_mesh->set_subdivide_depth(_chunk_size * 0.5);
 	plane_mesh->set_subdivide_width( _chunk_size * 0.5);
-	plane_mesh->set_material(get_surface_material());
-	print_line("-------- GENERATED PLANE MESH----------");
+	plane_mesh->set_material(_parent->get_surface_material());
+	//print_line("-------- GENERATED PLANE MESH----------");
 	_data_tool = memnew(MeshDataTool());
 	_surface_tool = memnew(SurfaceTool());
 	_surface_tool->create_from(plane_mesh, 0);
 	Ref<ArrayMesh> array_plane = _surface_tool->commit();
-	print_line("-------- GENERATED ARRAY_PLANE----------");
+	//print_line("-------- GENERATED ARRAY_PLANE----------");
 
-	/*
-	Chunk *chunk;
+
+	Chunk *chunk = memnew(Chunk());
 	Error error = _data_tool->create_from_surface(array_plane, 0);
 
 	for (int it = 0; it < _data_tool->get_vertex_count(); it++) {
@@ -110,9 +110,9 @@ void ChunkGenerator::generate_chunk(){
 
 	for (int it = 0; it < array_plane->get_surface_count(); it++) {
 		array_plane->surface_remove(it);
-	}*/
+	}
 
-	/*
+
 	_data_tool->commit_to_surface(array_plane);
 	_surface_tool->begin(Mesh::PrimitiveType::PRIMITIVE_TRIANGLES);
 	_surface_tool->create_from(array_plane, 0);
@@ -122,7 +122,7 @@ void ChunkGenerator::generate_chunk(){
 	chunk->mesh_instance->create_trimesh_collision();
 	_chunks.push_back(chunk);
 	add_child(chunk->mesh_instance);
-	*/
+
 }
 
 
