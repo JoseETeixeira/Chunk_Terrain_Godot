@@ -84,16 +84,17 @@ void ChunkGenerator::set_chunk_size(int chunk_size){
 }
 
 void ChunkGenerator::generate_chunk(){
-	/*
-	Ref<PlaneMesh> plane_mesh = memnew(Ref<PlaneMesh>());
+
+	PlaneMesh *plane_mesh = memnew(PlaneMesh());
 	plane_mesh->set_size(Vector2(_chunk_size, _chunk_size));
 	plane_mesh->set_subdivide_depth(_chunk_size * 0.5);
 	plane_mesh->set_subdivide_width( _chunk_size * 0.5);
 	plane_mesh->set_material(get_surface_material());
-	print_line("-------- GENERATED PLANE MESH----------");
-	Chunk *chunk;
-	*/
+	//print_line("-------- GENERATED PLANE MESH----------");
+
+
 	/*
+	Chunk *chunk;
 	_surface_tool->create_from(plane_mesh, 0);
 	Ref<ArrayMesh> array_plane = _surface_tool->commit();
 	print_line("-------- GENERATED ARRAY_PLANE----------");
