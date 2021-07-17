@@ -87,20 +87,14 @@ void ChunkTerrain::set_surface_material(Ref<ShaderMaterial> surface_material) {
 	if (_surface_material == surface_material) {
 		return;
 	}
-	_surface_material->disconnect(CoreStringNames::get_singleton()->changed, this, "_on_surface_material_changed");
 	_surface_material = surface_material;
-	_surface_material->connect(CoreStringNames::get_singleton()->changed, this, "_on_surface_material_changed");
-
-}
-
-void ChunkTerrain::_on_surface_material_changed() {
-	ERR_FAIL_COND(_surface_material.is_null());
-	print_line("-------- SURFACE MATERIAL CHANGED ----------");
 	if(_generator!=nullptr){
 		_generator->set_surface_material(_surface_material);
 	}
-    //TODO: CLEAR CHUNKS AND REGENERATE
+
 }
+
+
 
 Ref<ShaderMaterial> ChunkTerrain::get_surface_material() {
 	return _surface_material;
@@ -131,7 +125,6 @@ void ChunkTerrain::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("set_surface_material", "surface_material"), &ChunkTerrain::set_surface_material);
 	ClassDB::bind_method(D_METHOD("get_surface_material"), &ChunkTerrain::get_surface_material);
-	ClassDB::bind_method(D_METHOD("_on_surface_material_changed"), &ChunkTerrain::_on_surface_material_changed);
 
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "noise", PROPERTY_HINT_RESOURCE_TYPE, "OpenSimplexNoise"), "set_noise", "get_noise");
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "surface_material", PROPERTY_HINT_RESOURCE_TYPE, "ShaderMaterial"), "set_surface_material", "get_surface_material");
