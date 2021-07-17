@@ -81,7 +81,10 @@ void ChunkTerrain::set_noise(Ref<OpenSimplexNoise> noise) {
 void ChunkTerrain::_on_noise_changed() {
 	ERR_FAIL_COND(_noise.is_null());
 	print_line("-------- NOISE CHANGED ----------");
-	_generator->set_noise(_noise);
+	if(_generator!=nullptr){
+		_generator->set_noise(_noise);
+	}
+
     //TODO: CLEAR CHUNKS AND REGENERATE
 }
 
@@ -101,7 +104,9 @@ void ChunkTerrain::set_surface_material(Ref<ShaderMaterial> surface_material) {
 void ChunkTerrain::_on_surface_material_changed() {
 	ERR_FAIL_COND(_surface_material.is_null());
 	print_line("-------- SURFACE MATERIAL CHANGED ----------");
-	_generator->set_surface_material(_surface_material);
+	if(_generator!=nullptr){
+		_generator->set_surface_material(_surface_material);
+	}
     //TODO: CLEAR CHUNKS AND REGENERATE
 }
 
