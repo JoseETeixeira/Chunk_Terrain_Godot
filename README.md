@@ -12,13 +12,13 @@ Sometimes simplicity is all you need. This module lets you generate Blocky SDF t
 
 ## DOCUMENTATION
 
-- Changelog:
+# Changelog:
 
 Basic generator is working
 
-- TODO:
+# TODO:
 
-Auto-generate chunks and handle them
-Generate water
-Generate grass
-Generate trees
+- Auto-generate chunks and handle them
+- Generate water
+- Generate grass
+- Generate trees
