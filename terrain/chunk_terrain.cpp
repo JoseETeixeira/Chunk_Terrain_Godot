@@ -72,21 +72,13 @@ void ChunkTerrain::set_noise(Ref<OpenSimplexNoise> noise) {
 	if (_noise == noise) {
 		return;
 	}
-	_noise->disconnect(CoreStringNames::get_singleton()->changed, this, "_on_noise_changed");
 	_noise = noise;
-	_noise->connect(CoreStringNames::get_singleton()->changed, this, "_on_noise_changed");
-
-}
-
-void ChunkTerrain::_on_noise_changed() {
-	ERR_FAIL_COND(_noise.is_null());
-	print_line("-------- NOISE CHANGED ----------");
 	if(_generator!=nullptr){
 		_generator->set_noise(_noise);
 	}
 
-    //TODO: CLEAR CHUNKS AND REGENERATE
 }
+
 
 Ref<OpenSimplexNoise> ChunkTerrain::get_noise() {
 	return _noise;
@@ -136,7 +128,6 @@ void ChunkTerrain::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("set_noise", "noise"), &ChunkTerrain::set_noise);
 	ClassDB::bind_method(D_METHOD("get_noise"), &ChunkTerrain::get_noise);
-	ClassDB::bind_method(D_METHOD("_on_noise_changed"), &ChunkTerrain::_on_noise_changed);
 
 	ClassDB::bind_method(D_METHOD("set_surface_material", "surface_material"), &ChunkTerrain::set_surface_material);
 	ClassDB::bind_method(D_METHOD("get_surface_material"), &ChunkTerrain::get_surface_material);
