@@ -42,8 +42,6 @@ void ChunkGenerator::_notification(int p_what) {
 	}
 }
 ChunkGenerator::~ChunkGenerator() {
-	memdelete(_data_tool);
-	memdelete(_surface_tool);
 }
 
 void ChunkGenerator::set_noise(Ref<OpenSimplexNoise> noise) {
@@ -103,14 +101,6 @@ void ChunkGenerator::set_chunk_size(int chunk_size){
 
 void ChunkGenerator::generate_chunk(){
 	_chunks.clear();
-	if( this->get_child_count() > 0){
-		for (auto it=0; it!=this->get_child_count(); ++it){
-			MeshInstance *mi = Object::cast_to<MeshInstance>(this->get_child(it));
-			if(mi != nullptr) {
-				memdelete(mi);
-			}
-		}
-	}
 
 	_data_tool = memnew(MeshDataTool());
 	_surface_tool = memnew(SurfaceTool());

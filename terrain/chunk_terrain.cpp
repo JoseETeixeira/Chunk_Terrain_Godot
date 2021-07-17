@@ -6,21 +6,20 @@
 #include <core/array.h>
 
 ChunkTerrain::ChunkTerrain(){
-
+	set_x(0);
+	set_z(0);
+	set_chunk_size(0);
+	set_chunk_amount(0);
+	this->_thread = memnew(Thread());
 }
 
 ChunkTerrain::~ChunkTerrain(){
-	memdelete(_generator);
 }
 
 void ChunkTerrain::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_ENTER_TREE :
-			set_x(0);
-			set_z(0);
-			set_chunk_size(0);
-			set_chunk_amount(0);
-			this->_thread = memnew(Thread());
+
 			break;
 		case NOTIFICATION_EXIT_TREE:
 			//memdelete(_generator);
