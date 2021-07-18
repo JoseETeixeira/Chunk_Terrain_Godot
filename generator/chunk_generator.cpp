@@ -124,10 +124,19 @@ void ChunkGenerator::generate_chunk(){
 
 }
 
+int ChunkGenerator::get_x(){
+	return _x;
+}
+int ChunkGenerator::get_z(){
+	return _z;
+}
 
 void ChunkGenerator::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_noise", "noise"), &ChunkGenerator::set_noise);
 	ClassDB::bind_method(D_METHOD("get_noise"), &ChunkGenerator::get_noise);
+
+	ClassDB::bind_method(D_METHOD("get_x"), &ChunkGenerator::get_x);
+	ClassDB::bind_method(D_METHOD("get_z"), &ChunkGenerator::get_z);
 
 	ClassDB::bind_method(D_METHOD("set_x", "x"), &ChunkGenerator::set_x);
 	ClassDB::bind_method(D_METHOD("set_z", "z"), &ChunkGenerator::set_z);

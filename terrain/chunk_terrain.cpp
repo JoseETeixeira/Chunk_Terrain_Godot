@@ -10,7 +10,6 @@ ChunkTerrain::ChunkTerrain(){
 	set_z(0);
 	set_chunk_size(0);
 	set_chunk_amount(0);
-	this->_thread = memnew(Thread());
 }
 
 ChunkTerrain::~ChunkTerrain(){
@@ -73,9 +72,6 @@ void ChunkTerrain::set_noise(Ref<OpenSimplexNoise> noise) {
 		return;
 	}
 	_noise = noise;
-	if(_generator!=nullptr){
-		_generator->set_noise(_noise);
-	}
 
 }
 
@@ -88,9 +84,6 @@ void ChunkTerrain::set_surface_material(Ref<ShaderMaterial> surface_material) {
 		return;
 	}
 	_surface_material = surface_material;
-	if(_generator!=nullptr){
-		_generator->set_surface_material(_surface_material);
-	}
 
 }
 
@@ -100,14 +93,48 @@ Ref<ShaderMaterial> ChunkTerrain::get_surface_material() {
 	return _surface_material;
 }
 
-void ChunkTerrain::set_generator(ChunkGenerator *generator){
-	if (_generator == generator){
+
+void ChunkTerrain::add_chunk(int x, int z){
+
+	Vector2 key = Vector2(x,z);
+
+	if (_chunks.count(key)>0 ||_unready_chunks.count(key)>0){
+		//already has key so we dont have to do anything
 		return;
 	}
-	_generator = generator;
+
+	std::thread th(&ChunkTerrain::load_chunk, this, key);
+}
+
+
+void ChunkTerrain::load_chunk(Vector2 key){
+	int x = key.x;
+	int z = key.y;
+	ChunkGenerator *chunk = memnew(ChunkGenerator(x,z));
+	chunk->set_translation(Vector3(x*_chunk_size,0,z*_chunk_size));
+
+	call_deferred("load_done",chunk);
+
 
 }
 
+void ChunkTerrain::load_done(ChunkGenerator *generator){
+	add_child(generator);
+	int x = int(generator->get_x()/_chunk_size);
+	int z = int(generator->get_z()/_chunk_size);
+
+	Vector2 key = Vector2(x,z);
+	std::pair<std::map<Vector2,ChunkGenerator*>::iterator,bool> ret;
+	ret = _chunks.insert ( std::pair<Vector2,ChunkGenerator*>(key,generator) );
+	if (ret.second==false) {
+
+		print_line("element 'z' already existed");
+	}
+
+	std::map<Vector2,ChunkGenerator*>::iterator it;
+	it=_unready_chunks.find(key);
+	_unready_chunks.erase(it);
+}
 
 void ChunkTerrain::_bind_methods() {
 
@@ -125,6 +152,8 @@ void ChunkTerrain::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("set_surface_material", "surface_material"), &ChunkTerrain::set_surface_material);
 	ClassDB::bind_method(D_METHOD("get_surface_material"), &ChunkTerrain::get_surface_material);
+
+	ClassDB::bind_method(D_METHOD("add_chunk","x","z"), &ChunkTerrain::add_chunk);
 
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "noise", PROPERTY_HINT_RESOURCE_TYPE, "OpenSimplexNoise"), "set_noise", "get_noise");
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "surface_material", PROPERTY_HINT_RESOURCE_TYPE, "ShaderMaterial"), "set_surface_material", "get_surface_material");

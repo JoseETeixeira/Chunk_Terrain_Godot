@@ -28,6 +28,8 @@ public:
     //TODO: get_chunks
     void set_surface_material(Ref<ShaderMaterial> surface_material);
     Ref<ShaderMaterial> get_surface_material() ;
+	int get_x();
+	int get_z();
 
 
 protected:
