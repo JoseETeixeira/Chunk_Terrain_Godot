@@ -7,6 +7,8 @@
 #include "../../modules/opensimplex/open_simplex_noise.h"
 #include "../../scene/resources/material.h"
 #include "../../core/math/vector2.h"
+#include "../../core/math/vector3.h"
+#include "../../core/node_path.h"
 #include <scene/3d/spatial.h>
 #include "../util/math/vector3i.h"
 #include <map>
@@ -38,14 +40,15 @@ public:
 	void set_noise(Ref<OpenSimplexNoise> noise);
     Ref<OpenSimplexNoise> get_noise();
 
+	void set_player(NodePath path);
+   	NodePath get_player();
+
 	void set_surface_material(Ref<ShaderMaterial> surface_material);
     Ref<ShaderMaterial> get_surface_material();
 
 	void add_chunk(int x, int z);
 
 	ChunkGenerator* get_chunk(int x, int z);
-
-
 
     ChunkTerrain();
     ~ChunkTerrain();
@@ -55,10 +58,16 @@ private:
 	void load_chunk(Vector2 key);
 	void load_done(ChunkGenerator *generator);
 
+	void update_chunks(Vector3 player_translation);
+	void clean_up_chunks();
+	void reset_chunks();
+
     int _x;
     int _z;
     int _chunk_size;
     int _chunk_amount;
+	Spatial *_player_node;
+	NodePath _player;
 	Ref<OpenSimplexNoise> _noise;
 	Ref<ShaderMaterial> _surface_material;
 	std::map<Vector2,ChunkGenerator*> _chunks;

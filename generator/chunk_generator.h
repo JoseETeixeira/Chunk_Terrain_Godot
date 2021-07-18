@@ -30,6 +30,7 @@ public:
     Ref<ShaderMaterial> get_surface_material() ;
 	int get_x();
 	int get_z();
+	bool should_remove = true;
 
 
 protected:
@@ -43,7 +44,7 @@ private:
     int _z;
     Ref<OpenSimplexNoise> _noise;
     int _chunk_size;
-    bool should_remove = true;
+
     MeshDataTool *_data_tool;
     SurfaceTool *_surface_tool;
     Ref<ShaderMaterial> _surface_material;
