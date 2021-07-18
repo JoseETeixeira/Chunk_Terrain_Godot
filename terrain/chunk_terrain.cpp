@@ -136,6 +136,18 @@ void ChunkTerrain::load_done(ChunkGenerator *generator){
 	_unready_chunks.erase(it);
 }
 
+ChunkGenerator* ChunkTerrain::get_chunk(int x, int z){
+
+	Vector2 key = Vector2(x,z);
+
+	if (_chunks.count(key) == 0 ){
+		//already has key so we dont have to do anything
+		return nullptr;
+	}
+
+	return _chunks.at(key);
+}
+
 void ChunkTerrain::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("set_x", "x"), &ChunkTerrain::set_x);
@@ -154,6 +166,7 @@ void ChunkTerrain::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_surface_material"), &ChunkTerrain::get_surface_material);
 
 	ClassDB::bind_method(D_METHOD("add_chunk","x","z"), &ChunkTerrain::add_chunk);
+	ClassDB::bind_method(D_METHOD("get_chunk","x","z"), &ChunkTerrain::get_chunk);
 
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "noise", PROPERTY_HINT_RESOURCE_TYPE, "OpenSimplexNoise"), "set_noise", "get_noise");
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "surface_material", PROPERTY_HINT_RESOURCE_TYPE, "ShaderMaterial"), "set_surface_material", "get_surface_material");

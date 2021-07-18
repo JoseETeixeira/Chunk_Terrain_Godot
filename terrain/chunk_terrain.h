@@ -43,7 +43,7 @@ public:
 
 	void add_chunk(int x, int z);
 
-
+	ChunkGenerator* get_chunk(int x, int z);
 
 
 
