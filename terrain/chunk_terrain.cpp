@@ -31,19 +31,19 @@ void ChunkTerrain::_notification(int p_what) {
 	}
 }
 
-void ChunkTerrain::set_x(uint32_t x){
+void ChunkTerrain::set_x(int x){
     _x = x;
 }
 
-void ChunkTerrain::set_z(uint32_t z){
+void ChunkTerrain::set_z(int z){
     _z = z;
 }
 
-uint32_t ChunkTerrain::get_x(){
+int ChunkTerrain::get_x(){
 	return _x;
 }
 
-uint32_t ChunkTerrain::get_z(){
+int ChunkTerrain::get_z(){
 	return _z;
 }
 

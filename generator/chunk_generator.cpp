@@ -10,6 +10,12 @@ ChunkGenerator::ChunkGenerator(){
 
 }
 
+ChunkGenerator::ChunkGenerator( int x, int z){
+	set_x(x);
+	set_z(z);
+
+}
+
 void ChunkGenerator::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_READY:
@@ -23,20 +29,13 @@ void ChunkGenerator::_notification(int p_what) {
 		case NOTIFICATION_PARENTED:
 			_parent = Object::cast_to<ChunkTerrain>(get_parent());
 			if (_parent != nullptr) {
-				_parent->set_generator(this);
-				set_x(_parent->get_x());
-                set_z(_parent->get_z());
                 set_chunk_size(_parent->get_chunk_size());
 				set_noise(_parent->get_noise());
+				set_surface_material(_parent->get_surface_material());
 			}
 			break;
 
 		case NOTIFICATION_UNPARENTED:
-			if (_parent != nullptr) {
-				_parent->set_generator(nullptr);
-
-			}
-			_parent = nullptr;
 			break;
 	}
 }
@@ -71,11 +70,11 @@ Ref<ShaderMaterial> ChunkGenerator::get_surface_material()  {
 }
 
 
-void ChunkGenerator::set_x(uint32_t x){
+void ChunkGenerator::set_x(int x){
     _x = x;
 }
 
-void ChunkGenerator::set_z(uint32_t z){
+void ChunkGenerator::set_z(int z){
     _z = z;
 }
 

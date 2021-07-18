@@ -7,7 +7,7 @@
 #include "../../modules/opensimplex/open_simplex_noise.h"
 #include "../../scene/resources/material.h"
 #include <scene/3d/spatial.h>
-
+#include "../util/math/vector3i.h"
 
 class ChunkGenerator;
 
@@ -20,11 +20,11 @@ protected:
 	void _process(float delta);
 
 public:
-    void set_x(uint32_t x);
-    uint32_t get_x();
+    void set_x(int x);
+    int get_x();
 
-    void set_z(uint32_t z);
-    uint32_t get_z();
+    void set_z(int z);
+    int get_z();
 
     void set_chunk_size(int size);
     int get_chunk_size();
@@ -48,8 +48,8 @@ public:
 private:
 
 
-    uint32_t _x;
-    uint32_t _z;
+    int _x;
+    int _z;
     int _chunk_size;
     int _chunk_amount;
     ChunkGenerator *_generator = nullptr;

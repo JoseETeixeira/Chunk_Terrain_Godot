@@ -16,6 +16,7 @@ class ChunkGenerator : public Spatial {
 	GDCLASS(ChunkGenerator, Spatial)
 public:
 	ChunkGenerator();
+	ChunkGenerator(int x, int z);
     ~ChunkGenerator();
 
 	void generate_chunk();
@@ -36,8 +37,8 @@ protected:
 private:
     struct Chunk;
 
-    uint32_t _x;
-    uint32_t _z;
+    int _x;
+    int _z;
     Ref<OpenSimplexNoise> _noise;
     int _chunk_size;
     bool should_remove = true;
@@ -46,8 +47,8 @@ private:
     Ref<ShaderMaterial> _surface_material;
 
 
-    void set_x(uint32_t x);
-    void set_z(uint32_t z);
+    void set_x(int x);
+    void set_z(int z);
     void set_chunk_size(int chunk_size);
 
     struct Chunk {

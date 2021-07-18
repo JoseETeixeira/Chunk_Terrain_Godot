@@ -47,6 +47,14 @@
         "xhash": "cpp",
         "xstring": "cpp",
         "xutility": "cpp",
-        "chrono": "cpp"
+        "chrono": "cpp",
+        "cstring": "cpp",
+        "ratio": "cpp",
+        "xthread": "cpp",
+        "thread": "cpp",
+        "xmemory": "cpp",
+        "xmemory0": "cpp",
+        "xstddef": "cpp",
+        "xtr1common": "cpp"
     }
 }
