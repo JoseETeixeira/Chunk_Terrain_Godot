@@ -3,11 +3,14 @@
 #define CHUNK_TERRAIN_H
 
 #include "../../core/reference.h"
-#include "../../core/os/thread.h"
+#include "../../core/array.h"
+#include "../../core/bind/core_bind.h"
 #include "../../modules/opensimplex/open_simplex_noise.h"
 #include "../../scene/resources/material.h"
 #include <scene/3d/spatial.h>
 #include "../util/math/vector3i.h"
+#include "../../core/dictionary.h"
+#include <string>
 
 class ChunkGenerator;
 
@@ -22,6 +25,9 @@ protected:
 public:
     void set_x(int x);
     int get_x();
+
+	void set_y(int y);
+    int get_y();
 
     void set_z(int z);
     int get_z();
@@ -47,14 +53,26 @@ public:
 
 private:
 
+	void add_chunk(int x,int z);
+	void load_chunk(int arr[]);
+	void load_done(ChunkGenerator *chunk);
+
+	ChunkGenerator* get_chunk(int x,int z);
+
+	void update_chunks();
+
 
     int _x;
+	int _y;
     int _z;
     int _chunk_size;
     int _chunk_amount;
     ChunkGenerator *_generator = nullptr;
 	Ref<OpenSimplexNoise> _noise;
 	Ref<ShaderMaterial> _surface_material;
+	_Thread _thread;
+	Dictionary chunks;
+	Dictionary unready_chunks;
 
 
 };
