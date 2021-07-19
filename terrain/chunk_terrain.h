@@ -3,7 +3,7 @@
 #define CHUNK_TERRAIN_H
 
 #include "../../core/reference.h"
-#include "../../core/os/thread.h"
+#include "../../core/bind/core_bind.h"
 #include "../../modules/opensimplex/open_simplex_noise.h"
 #include "../../scene/resources/material.h"
 #include "../../core/math/vector2.h"
@@ -54,13 +54,24 @@ public:
     ~ChunkTerrain();
 
 private:
+	struct ThreadData;
 
-	void load_chunk(Vector2 key);
-	void load_done(ChunkGenerator *generator);
+	static void load_chunk(void *p_data);
+	void load_done(ThreadData &data);
 
 	void update_chunks(Vector3 player_translation);
 	void clean_up_chunks();
 	void reset_chunks();
+
+	struct ThreadData{
+		int x;
+		int z;
+		int chunk_size;
+		_Thread *thread;
+		ChunkGenerator *generator;
+		ChunkTerrain *terrain;
+
+	};
 
     int _x;
     int _z;
@@ -72,6 +83,7 @@ private:
 	Ref<ShaderMaterial> _surface_material;
 	std::map<Vector2,ChunkGenerator*> _chunks;
 	std::map<Vector2,ChunkGenerator*> _unready_chunks;
+	
 
 
 };

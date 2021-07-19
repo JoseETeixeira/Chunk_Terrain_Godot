@@ -155,34 +155,44 @@ void ChunkTerrain::add_chunk(int x, int z){
 		//already has key so we dont have to do anything
 		return;
 	}
+
+	ThreadData localThread;
+	localThread.x = x;
+	localThread.z = z;
+	localThread.chunk_size = _chunk_size;
+	localThread.terrain = this;
+	localThread.thread = memnew(_Thread());
 	//print_line("CHUNK ADDED");
-
-	load_chunk(key);
+	if(!localThread.thread->is_active()){
+		localThread.thread->start(this,"load_chunk",&localThread);
+	}
 }
 
 
-void ChunkTerrain::load_chunk(Vector2 key){
-	int x = key.x;
-	int z = key.y;
-	ChunkGenerator *chunk = memnew(ChunkGenerator());
-	chunk->_init(x,z,_chunk_size,_noise);
-	chunk->set_translation(Vector3(x*_chunk_size,0,z*_chunk_size));
+void ChunkTerrain::load_chunk(void *p_data) {
+	ThreadData &data = *static_cast<ThreadData *>(p_data);
+	int x = data.x;
+	int z = data.z;
+	data.generator = memnew(ChunkGenerator());
+	data.generator ->_init(x,z,data.chunk_size);
+	data.generator ->set_translation(Vector3(x*data.chunk_size,0,z*data.chunk_size));
 	//print_line("CHUNK LOADED");
-	load_done(chunk);
+	data.terrain->load_done(data);
 
 
 }
 
-void ChunkTerrain::load_done(ChunkGenerator *generator){
-	add_child(generator);
-	int x = int(generator->get_x()/_chunk_size);
-	int z = int(generator->get_z()/_chunk_size);
+void ChunkTerrain::load_done(ThreadData &data){
+	add_child(data.generator);
+	int x = int(data.x/data.chunk_size);
+	int z = int(data.z/data.chunk_size);
 
 	Vector2 key = Vector2(x,z);
 	std::pair<std::map<Vector2,ChunkGenerator*>::iterator,bool> ret;
-	ret = _chunks.insert ( std::pair<Vector2,ChunkGenerator*>(key,generator) );
+	ret = _chunks.insert ( std::pair<Vector2,ChunkGenerator*>(key,data.generator) );
 
 	_unready_chunks.erase(key);
+	//data.thread->wait_to_finish();
 }
 
 ChunkGenerator* ChunkTerrain::get_chunk(int x, int z){

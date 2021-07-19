@@ -16,11 +16,10 @@ ChunkGenerator::ChunkGenerator( int x, int z){
 
 }
 
-void ChunkGenerator::_init( int x, int z, int chunk_size,Ref<OpenSimplexNoise> noise){
+void ChunkGenerator::_init( int x, int z, int chunk_size){
 	_x = x;
 	_z = z;
 	_chunk_size = chunk_size;
-	_noise = noise;
 
 }
 
@@ -35,6 +34,7 @@ void ChunkGenerator::_notification(int p_what) {
 		case NOTIFICATION_PARENTED:
 			_parent = Object::cast_to<ChunkTerrain>(get_parent());
 			if (_parent != nullptr) {
+				set_noise(_parent->get_noise());
 				set_surface_material(_parent->get_surface_material());
 			}
 			break;

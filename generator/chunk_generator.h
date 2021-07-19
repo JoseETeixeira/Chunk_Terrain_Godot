@@ -31,7 +31,7 @@ public:
 	int get_x();
 	int get_z();
 	bool should_remove = true;
-    void _init(int x, int z, int chunk_size,Ref<OpenSimplexNoise> noise);
+    void _init(int x, int z, int chunk_size);
 
 
 protected:
