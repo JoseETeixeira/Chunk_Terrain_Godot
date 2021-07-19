@@ -53,7 +53,6 @@ private:
     int _chunk_size;
     int _chunk_amount;
     ChunkGenerator *_generator = nullptr;
-	Thread *_thread = nullptr;
 	Ref<OpenSimplexNoise> _noise;
 	Ref<ShaderMaterial> _surface_material;
 

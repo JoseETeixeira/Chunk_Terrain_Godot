@@ -29,6 +29,17 @@ public:
     void set_surface_material(Ref<ShaderMaterial> surface_material);
     Ref<ShaderMaterial> get_surface_material() ;
 
+    void set_x(int x);
+    void set_z(int z);
+    void set_chunk_size(int chunk_size);
+
+    void set_should_remove(bool should_remove);
+    bool get_should_remove();
+
+    int get_x();
+    int get_z();
+
+
 
 protected:
 	static void _bind_methods();
@@ -41,15 +52,13 @@ private:
     int _z;
     Ref<OpenSimplexNoise> _noise;
     int _chunk_size;
-    bool should_remove = true;
+    bool _should_remove = false;
     MeshDataTool *_data_tool;
     SurfaceTool *_surface_tool;
     Ref<ShaderMaterial> _surface_material;
 
 
-    void set_x(int x);
-    void set_z(int z);
-    void set_chunk_size(int chunk_size);
+    
 
     struct Chunk {
 		// Position in mesh block coordinate system

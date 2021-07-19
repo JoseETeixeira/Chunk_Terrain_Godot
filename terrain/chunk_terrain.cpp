@@ -8,9 +8,8 @@
 ChunkTerrain::ChunkTerrain(){
 	set_x(0);
 	set_z(0);
-	set_chunk_size(0);
-	set_chunk_amount(0);
-	this->_thread = memnew(Thread());
+	set_chunk_size(32);
+	set_chunk_amount(16);
 }
 
 ChunkTerrain::~ChunkTerrain(){
