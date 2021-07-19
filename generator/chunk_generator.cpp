@@ -11,10 +11,18 @@ ChunkGenerator::ChunkGenerator(){
 }
 
 ChunkGenerator::ChunkGenerator( int x, int z){
-	set_x(x);
-	set_z(z);
+	_x = x;
+	_z = z;
 
 }
+
+void ChunkGenerator::_init( int x, int z, int chunk_size){
+	_x = x;
+	_z = z;
+	_chunk_size = chunk_size;
+
+}
+
 
 void ChunkGenerator::_notification(int p_what) {
 	switch (p_what) {
@@ -29,7 +37,6 @@ void ChunkGenerator::_notification(int p_what) {
 		case NOTIFICATION_PARENTED:
 			_parent = Object::cast_to<ChunkTerrain>(get_parent());
 			if (_parent != nullptr) {
-                set_chunk_size(_parent->get_chunk_size());
 				set_noise(_parent->get_noise());
 				set_surface_material(_parent->get_surface_material());
 			}
@@ -141,6 +148,8 @@ void ChunkGenerator::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_x", "x"), &ChunkGenerator::set_x);
 	ClassDB::bind_method(D_METHOD("set_z", "z"), &ChunkGenerator::set_z);
 	ClassDB::bind_method(D_METHOD("set_chunk_size", "chunk_size"), &ChunkGenerator::set_chunk_size);
+
+	ClassDB::bind_method(D_METHOD("_init","x","z","chunk_size"), &ChunkGenerator::_init);
 
 	ClassDB::bind_method(D_METHOD("set_surface_material", "surface_material"), &ChunkGenerator::set_surface_material);
 	ClassDB::bind_method(D_METHOD("get_surface_material"), &ChunkGenerator::get_surface_material);

@@ -71,6 +71,8 @@ void ChunkTerrain::_process(float delta){
 	reset_chunks();
 	if(_player_node!=nullptr){
 		update_chunks(_player_node->get_translation());
+	}else{
+		update_chunks(Vector3(0,0,0));
 	}
 }
 
@@ -162,7 +164,8 @@ void ChunkTerrain::add_chunk(int x, int z){
 void ChunkTerrain::load_chunk(Vector2 key){
 	int x = key.x;
 	int z = key.y;
-	ChunkGenerator *chunk = memnew(ChunkGenerator(x,z));
+	ChunkGenerator *chunk = memnew(ChunkGenerator());
+	chunk->_init(x,z,_chunk_size);
 	chunk->set_translation(Vector3(x*_chunk_size,0,z*_chunk_size));
 	//print_line("CHUNK LOADED");
 	load_done(chunk);

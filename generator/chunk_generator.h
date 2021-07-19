@@ -31,11 +31,13 @@ public:
 	int get_x();
 	int get_z();
 	bool should_remove = true;
+    void _init(int x, int z, int chunk_size);
 
 
 protected:
 	static void _bind_methods();
     void _notification(int p_what);
+    
 
 private:
     struct Chunk;
