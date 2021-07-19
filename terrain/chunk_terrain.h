@@ -23,6 +23,8 @@ protected:
 	void _process(float delta);
 
 public:
+    struct ThreadData;
+    
     void set_x(int x);
     int get_x();
 
@@ -46,20 +48,32 @@ public:
 	void set_surface_material(Ref<ShaderMaterial> surface_material);
     Ref<ShaderMaterial> get_surface_material();
 
+    struct ThreadData{
+		int x;
+		int z;
+		int chunk_size;
+		_Thread *thread;
+		ChunkGenerator *generator;
+		ChunkTerrain *terrain;
 
+	};
 
     ChunkTerrain();
     ~ChunkTerrain();
 
 private:
 
+    
+
 	void add_chunk(int x,int z);
-	void load_chunk(int arr[]);
-	void load_done(ChunkGenerator *chunk);
+	static void load_chunk(void *p_data);
+	void load_done(ThreadData data);
 
 	ChunkGenerator* get_chunk(int x,int z);
 
 	void update_chunks();
+
+    
 
 
     int _x;

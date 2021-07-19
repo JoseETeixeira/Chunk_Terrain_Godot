@@ -140,39 +140,45 @@ void ChunkTerrain::add_chunk(int x, int z){
 	//	return;
 	//}
 		
-
-	int arr[] = {x,z};
-	load_chunk(arr);
-	//_thread.start(this,"load_chunk",arr);
-	unready_chunks[key] = 1;
+	ThreadData data;
+	if(!data.thread->is_active()){
+		data.x = x;
+		data.z = z;
+		data.chunk_size = _chunk_size;
+		data.terrain = this;
+		data.thread->start(this,"load_chunk",&data);
+		unready_chunks[key] = 1;
+	}
+	
 		
 }
 
-void ChunkTerrain::load_chunk(int arr[]){
-	int x_local = arr[0];
-	int z_local = arr[1];
+void ChunkTerrain::load_chunk(void *p_data){
+	ThreadData &data = *static_cast<ThreadData *>(p_data);
+	int x_local = data.x;
+	int z_local = data.z;
 	
 	ChunkGenerator *chunk = memnew(ChunkGenerator());
-	chunk->set_noise(_noise);
-	chunk->set_x(x_local*_chunk_size);
-	chunk->set_z(z_local*_chunk_size);
+	chunk->set_x(x_local*data.chunk_size);
+	chunk->set_z(z_local*data.chunk_size);
 	
-	chunk->set_translation(Vector3(x_local*_chunk_size,0,z_local*_chunk_size));
-	load_done(chunk);
-	//call_deferred("load_done",chunk);
+	chunk->set_translation(Vector3(x_local*data.chunk_size,0,z_local*data.chunk_size));
+	//load_done(chunk);
+	data.generator = chunk;
+	call_deferred("load_done",data);
 }
 
-void ChunkTerrain::load_done(ChunkGenerator *chunk){
-	add_child(chunk);
-	const char*  xstr = NumberToString(chunk->get_x()/_chunk_size).c_str();
-	const char*  zstr = NumberToString(chunk->get_z()/_chunk_size).c_str();
+void ChunkTerrain::load_done(ThreadData data){
+	add_child(data.generator);
+	const char*  xstr = NumberToString(data.generator->get_x()/data.chunk_size).c_str();
+	const char*  zstr = NumberToString(data.generator->get_z()/data.chunk_size).c_str();
 	String xstrr= xstr; 
 	String zstrr = zstr;
 	String out_key = xstrr + "," + zstrr;
 	Variant key = memnew(Variant(out_key));
-	chunks[key] = chunk;
-	unready_chunks.erase(key);
-	//_thread.wait_to_finish();
+	data.terrain->chunks[key] = data.generator;
+	data.terrain->unready_chunks.erase(key);
+	data.thread->wait_to_finish();
 }
 
 ChunkGenerator* ChunkTerrain::get_chunk(int x,int z){
