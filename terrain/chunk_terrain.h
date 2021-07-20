@@ -47,19 +47,10 @@ public:
     Ref<ShaderMaterial> get_surface_material();
 
 
-
     ChunkTerrain();
     ~ChunkTerrain();
 
 private:
-
-	void add_chunk(int x,int z);
-	void load_chunk(int arr[]);
-	void load_done(ChunkGenerator *chunk);
-
-	ChunkGenerator* get_chunk(int x,int z);
-
-	void update_chunks();
 
 
     int _x;
@@ -70,9 +61,8 @@ private:
     ChunkGenerator *_generator = nullptr;
 	Ref<OpenSimplexNoise> _noise;
 	Ref<ShaderMaterial> _surface_material;
-	_Thread _thread;
-	Dictionary chunks;
-	Dictionary unready_chunks;
+	Dictionary _chunks;
+	Dictionary _unready_chunks;
 
 
 };
