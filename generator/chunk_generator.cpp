@@ -100,6 +100,8 @@ void ChunkGenerator::generate_chunk(){
 	Chunk *chunk = memnew(Chunk());
 	Error error = _data_tool->create_from_surface(array_plane, 0);
 
+	ERR_FAIL_COND(error != OK);
+
 	for (int it = 0; it < _data_tool->get_vertex_count(); it++) {
 		Vector3 vertex = _data_tool->get_vertex(it);
 		vertex.y =  Math::ceil(_noise->get_noise_3d(vertex.x + _x, vertex.y, vertex.z + _z) * 400);

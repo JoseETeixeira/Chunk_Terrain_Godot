@@ -51,8 +51,6 @@ public:
     void set_chunk_amount(int amount);
     int get_chunk_amount();
 
-    void set_generator(ChunkGenerator *generator);
-
 	void set_noise(Ref<OpenSimplexNoise> noise);
     Ref<OpenSimplexNoise> get_noise();
 
@@ -84,10 +82,10 @@ private:
     int _z;
     int _chunk_size;
     int _chunk_amount;
-    ChunkGenerator *_generator = nullptr;
 	Ref<OpenSimplexNoise> _noise;
 	Ref<ShaderMaterial> _surface_material;
 	Dictionary _chunks;
+    Dictionary _unready_chunks;
     VoxelThreadPool _chunk_thread_pool;
 
 

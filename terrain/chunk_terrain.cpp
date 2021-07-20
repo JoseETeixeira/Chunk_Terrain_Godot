@@ -7,6 +7,22 @@
 #include <core/ustring.h>
 #include <sstream>
 
+namespace {
+ChunkTerrain *g_chunk_terrain = nullptr;
+}
+
+template <typename Dst_T>
+inline Dst_T *must_be_cast(IVoxelTask *src) {
+#ifdef TOOLS_ENABLED
+	Dst_T *dst = dynamic_cast<Dst_T *>(src);
+	CRASH_COND_MSG(dst == nullptr, "Invalid cast");
+	return dst;
+#else
+	return static_cast<Dst_T *>(src);
+#endif
+}
+
+
 ChunkTerrain::ChunkTerrain(){
 	set_x(0);
 	set_y(0);
@@ -16,13 +32,15 @@ ChunkTerrain::ChunkTerrain(){
 	_chunk_thread_pool.set_name("Chunk generation");
 	_chunk_thread_pool.set_thread_count(1);
 	_chunk_thread_pool.set_priority_update_period(300);
-	_chunk_thread_pool.set_batch_count(1);
+	_chunk_thread_pool.set_batch_count(16);
 	set_process(true);
 }
 
 ChunkTerrain::~ChunkTerrain(){
 
 	wait_and_clear_all_tasks(true);
+	_chunks.clear();
+	_unready_chunks.clear();
 }
 
 void ChunkTerrain::wait_and_clear_all_tasks(bool warn){
@@ -103,9 +121,6 @@ void ChunkTerrain::set_noise(Ref<OpenSimplexNoise> noise) {
 		return;
 	}
 	_noise = noise;
-	if(_generator!=nullptr){
-		_generator->set_noise(_noise);
-	}
 
 }
 
@@ -118,9 +133,6 @@ void ChunkTerrain::set_surface_material(Ref<ShaderMaterial> surface_material) {
 		return;
 	}
 	_surface_material = surface_material;
-	if(_generator!=nullptr){
-		_generator->set_surface_material(_surface_material);
-	}
 
 }
 
@@ -130,13 +142,7 @@ Ref<ShaderMaterial> ChunkTerrain::get_surface_material() {
 	return _surface_material;
 }
 
-void ChunkTerrain::set_generator(ChunkGenerator *generator){
-	if (_generator == generator){
-		return;
-	}
-	_generator = generator;
 
-}
 
 template <typename T>
 std::string NumberToString ( T Number )
@@ -150,7 +156,9 @@ void ChunkTerrain::add_chunk(int x,int z){
 	String xvar = NumberToString(x).c_str();
 	String zvar = NumberToString(x).c_str();
 	String key = xvar + "," + zvar;
-	if (_chunks.has(key)){
+	//_chunk_thread_pool.wait_for_all_tasks();
+
+	if(_chunks.has(key) || _unready_chunks.has(key)){
 		return;
 	}
 	
@@ -161,6 +169,9 @@ void ChunkTerrain::add_chunk(int x,int z){
 	r->generator = memnew(ChunkGenerator);
 	r->terrain = this;
 	_chunk_thread_pool.enqueue(r);
+	
+	
+	
 }
 
 void ChunkTerrain::ChunkGenerateRequest::run(VoxelTaskContext ctx) {
@@ -171,6 +182,11 @@ void ChunkTerrain::ChunkGenerateRequest::run(VoxelTaskContext ctx) {
 
 	terrain->load_done(this);
 	has_run = true;
+	String xvar = NumberToString(x).c_str();
+	String zvar = NumberToString(x).c_str();
+	String key = xvar + "," + zvar;
+	terrain->_unready_chunks[key] = 1;
+
 }
 
 
@@ -182,7 +198,9 @@ void ChunkTerrain::load_done(ChunkGenerateRequest *request){
 	String xvar = NumberToString(request->generator->get_x()/get_chunk_size()).c_str();
 	String zvar = NumberToString(request->generator->get_z()/get_chunk_size()).c_str();
 	String key = xvar + "," + zvar;
-	_chunks[key] = request->generator;
+	request->terrain->_chunks[key] = request->generator;
+	request->terrain->_unready_chunks.erase(key);
+
 	
 }
 
