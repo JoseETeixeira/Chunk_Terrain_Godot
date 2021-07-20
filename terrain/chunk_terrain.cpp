@@ -13,10 +13,27 @@ ChunkTerrain::ChunkTerrain(){
 	set_z(0);
 	set_chunk_size(32);
 	set_chunk_amount(16);
+	_chunk_thread_pool.set_name("Chunk generation");
+	_chunk_thread_pool.set_thread_count(1);
+	_chunk_thread_pool.set_priority_update_period(300);
+	_chunk_thread_pool.set_batch_count(1);
 	set_process(true);
 }
 
 ChunkTerrain::~ChunkTerrain(){
+
+	wait_and_clear_all_tasks(true);
+}
+
+void ChunkTerrain::wait_and_clear_all_tasks(bool warn){
+	_chunk_thread_pool.wait_for_all_tasks();
+	_chunk_thread_pool.dequeue_completed_tasks([warn](IVoxelTask *task) {
+		if (warn) {
+			WARN_PRINT("Streaming tasks remain on module cleanup, "
+					   "this could become a problem if they reference scripts");
+		}
+		memdelete(task);
+	});
 }
 
 void ChunkTerrain::_notification(int p_what) {
@@ -78,7 +95,7 @@ int ChunkTerrain::get_chunk_amount(){
 
 
 void ChunkTerrain::_process(float delta){
-
+	update_chunks();
 }
 
 void ChunkTerrain::set_noise(Ref<OpenSimplexNoise> noise) {
@@ -129,8 +146,74 @@ std::string NumberToString ( T Number )
 	return ss.str();
 }
 
+void ChunkTerrain::add_chunk(int x,int z){
+	String xvar = NumberToString(x).c_str();
+	String zvar = NumberToString(x).c_str();
+	String key = xvar + "," + zvar;
+	if (_chunks.has(key)){
+		return;
+	}
+	
+	ChunkGenerateRequest *r = memnew(ChunkGenerateRequest);
+	r->x = x;
+	r->z = z;
+	r->chunk_size = _chunk_size;
+	r->generator = memnew(ChunkGenerator);
+	r->terrain = this;
+	_chunk_thread_pool.enqueue(r);
+}
+
+void ChunkTerrain::ChunkGenerateRequest::run(VoxelTaskContext ctx) {
+
+	generator->set_x(x*chunk_size);
+	generator->set_z(z*chunk_size);
+	generator->set_translation(Vector3(x*chunk_size,0,z*chunk_size)); 
+
+	terrain->load_done(this);
+	has_run = true;
+}
 
 
+
+
+
+void ChunkTerrain::load_done(ChunkGenerateRequest *request){
+	add_child(request->generator);
+	String xvar = NumberToString(request->generator->get_x()/get_chunk_size()).c_str();
+	String zvar = NumberToString(request->generator->get_z()/get_chunk_size()).c_str();
+	String key = xvar + "," + zvar;
+	_chunks[key] = request->generator;
+	
+}
+
+Variant ChunkTerrain::get_chunk(int x,int z){
+	String xvar = NumberToString(x).c_str();
+	String zvar = NumberToString(z).c_str();
+	String key = xvar + "," + zvar;
+	if (_chunks.has(key)){
+		return _chunks.get_valid(key);
+	}
+	return Variant();
+}
+
+
+void ChunkTerrain::update_chunks(){
+	Vector3 player_translation = Vector3(get_x(),get_y(),get_z());
+	int p_x = int(player_translation.x) / _chunk_size;
+	int p_z = int(player_translation.z) / _chunk_size;
+	
+	for (int i = (p_x - _chunk_amount * 0.5); i<(p_x + _chunk_amount * 0.5); i++ ){
+		for (int j = (p_z - _chunk_amount * 0.5); j<(p_z + _chunk_amount * 0.5); j++ ){
+			add_chunk(i,j);
+			Variant cgenerator = get_chunk(i,j);
+			ChunkGenerator *generator = Object::cast_to<ChunkGenerator>(cgenerator);
+			if(generator!=nullptr){
+				
+				generator->set_should_remove(false);
+			}
+		}
+	}
+}
 
 
 void ChunkTerrain::_bind_methods() {
