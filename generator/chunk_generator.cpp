@@ -97,7 +97,7 @@ void ChunkGenerator::generate_chunk(){
 	//print_line("-------- GENERATED ARRAY_PLANE----------");
 
 
-	Chunk *chunk = memnew(Chunk());
+
 	Error error = _data_tool->create_from_surface(array_plane, 0);
 
 	ERR_FAIL_COND(error != OK);
@@ -106,23 +106,20 @@ void ChunkGenerator::generate_chunk(){
 		Vector3 vertex = _data_tool->get_vertex(it);
 		vertex.y =  Math::ceil(_noise->get_noise_3d(vertex.x + _x, vertex.y, vertex.z + _z) * 400);
 		_data_tool->set_vertex(it,vertex);
-		chunk->grid_positions.push_back(Vector3i(vertex.x,vertex.y,vertex.z));
 	}
 
 	for (int it = 0; it < array_plane->get_surface_count(); it++) {
 		array_plane->surface_remove(it);
 	}
 
-
 	_data_tool->commit_to_surface(array_plane);
 	_surface_tool->begin(Mesh::PrimitiveType::PRIMITIVE_TRIANGLES);
 	_surface_tool->create_from(array_plane, 0);
 	_surface_tool->generate_normals();
-	chunk->mesh_instance = memnew(MeshInstance());
-	chunk->mesh_instance->set_mesh(_surface_tool->commit());
-	chunk->mesh_instance->create_trimesh_collision();
-	_chunks.push_back(chunk);
-	add_child(chunk->mesh_instance);
+	MeshInstance *mesh_instance = memnew(MeshInstance());
+	mesh_instance->set_mesh(_surface_tool->commit());
+	mesh_instance->create_trimesh_collision();
+	add_child(mesh_instance);
 
 }
 
@@ -146,7 +143,7 @@ bool ChunkGenerator::get_should_remove(){
 void ChunkGenerator::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_noise", "noise"), &ChunkGenerator::set_noise);
 	ClassDB::bind_method(D_METHOD("get_noise"), &ChunkGenerator::get_noise);
-	
+
 
 	ClassDB::bind_method(D_METHOD("set_x", "x"), &ChunkGenerator::set_x);
 	ClassDB::bind_method(D_METHOD("get_x"), &ChunkGenerator::get_x);
