@@ -113,7 +113,13 @@ int ChunkTerrain::get_chunk_amount(){
 
 
 void ChunkTerrain::_process(float delta){
-	update_chunks();
+	_chunk_thread_pool.dequeue_completed_tasks([this](IVoxelTask *task) {
+		memdelete(task);
+	});
+	if(_noise!=nullptr && _surface_material!=nullptr){
+
+		update_chunks();
+	}
 }
 
 void ChunkTerrain::set_noise(Ref<OpenSimplexNoise> noise) {
@@ -161,7 +167,7 @@ void ChunkTerrain::add_chunk(int x,int z){
 	if(_chunks.has(key) || _unready_chunks.has(key)){
 		return;
 	}
-	
+
 	ChunkGenerateRequest *r = memnew(ChunkGenerateRequest);
 	r->x = x;
 	r->z = z;
@@ -169,16 +175,16 @@ void ChunkTerrain::add_chunk(int x,int z){
 	r->generator = memnew(ChunkGenerator);
 	r->terrain = this;
 	_chunk_thread_pool.enqueue(r);
-	
-	
-	
+
+
+
 }
 
 void ChunkTerrain::ChunkGenerateRequest::run(VoxelTaskContext ctx) {
 
 	generator->set_x(x*chunk_size);
 	generator->set_z(z*chunk_size);
-	generator->set_translation(Vector3(x*chunk_size,0,z*chunk_size)); 
+	generator->set_translation(Vector3(x*chunk_size,0,z*chunk_size));
 
 	terrain->load_done(this);
 	has_run = true;
@@ -198,10 +204,10 @@ void ChunkTerrain::load_done(ChunkGenerateRequest *request){
 	String xvar = NumberToString(request->generator->get_x()/get_chunk_size()).c_str();
 	String zvar = NumberToString(request->generator->get_z()/get_chunk_size()).c_str();
 	String key = xvar + "," + zvar;
-	request->terrain->_chunks[key] = request->generator;
-	request->terrain->_unready_chunks.erase(key);
+	_chunks[key] = request->generator;
+	_unready_chunks.erase(key);
 
-	
+
 }
 
 Variant ChunkTerrain::get_chunk(int x,int z){
@@ -219,14 +225,14 @@ void ChunkTerrain::update_chunks(){
 	Vector3 player_translation = Vector3(get_x(),get_y(),get_z());
 	int p_x = int(player_translation.x) / _chunk_size;
 	int p_z = int(player_translation.z) / _chunk_size;
-	
+
 	for (int i = (p_x - _chunk_amount * 0.5); i<(p_x + _chunk_amount * 0.5); i++ ){
 		for (int j = (p_z - _chunk_amount * 0.5); j<(p_z + _chunk_amount * 0.5); j++ ){
 			add_chunk(i,j);
 			Variant cgenerator = get_chunk(i,j);
 			ChunkGenerator *generator = Object::cast_to<ChunkGenerator>(cgenerator);
 			if(generator!=nullptr){
-				
+
 				generator->set_should_remove(false);
 			}
 		}
