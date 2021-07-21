@@ -10,6 +10,7 @@ ChunkTerrain::ChunkTerrain(){
 	set_z(0);
 	set_chunk_size(32);
 	set_chunk_amount(16);
+	set_process(true);
 }
 
 ChunkTerrain::~ChunkTerrain(){
@@ -64,7 +65,7 @@ int ChunkTerrain::get_chunk_amount(){
 
 
 void ChunkTerrain::_process(float delta){
-
+	update_chunks();
 }
 
 void ChunkTerrain::set_noise(Ref<OpenSimplexNoise> noise) {
@@ -104,6 +105,102 @@ void ChunkTerrain::set_generator(ChunkGenerator *generator){
 		return;
 	}
 	_generator = generator;
+
+}
+
+template <typename T>
+std::string NumberToString ( T Number )
+{
+	std::ostringstream ss;
+	ss << Number;
+	return ss.str();
+}
+
+
+void ChunkTerrain::add_chunk(int x_local, int z_local){
+	String xx =  NumberToString(x_local).c_str();
+	String zz =  NumberToString(z_local).c_str();
+	String key = xx + "," + zz;
+	if (chunks.has(key) || unready_chunks.has(key)){
+		return;
+	}
+
+	if(!thread.is_started()){
+		Array arr;
+		arr.push_back(x_local);
+		arr.push_back(z_local);
+		arr.push_back(_chunk_size);
+		arr.push_back(this);
+		//thread.start(load_chunk,&arr);
+		load_chunk(&arr);
+		mtx.lock();
+		unready_chunks[key] = 1;
+		mtx.unlock();
+
+	}
+
+
+}
+
+void ChunkTerrain::load_chunk(void *p_data){
+	Array &arr = *static_cast<Array *>(p_data);
+	int x_local = arr.pop_front();
+	int z_local = arr.pop_front();
+	int chunk_size = arr.pop_front();
+	ChunkTerrain *terrain = Object::cast_to<ChunkTerrain>(arr.pop_front());
+
+	ChunkGenerator *chunk = memnew(ChunkGenerator(x_local,z_local));
+	chunk->set_x(x_local * chunk_size);
+	chunk->set_z(z_local * chunk_size);
+	chunk->set_chunk_size(chunk_size);
+	chunk->set_translation(Vector3(x_local*chunk_size,0,z_local*chunk_size));
+
+	terrain->load_done(chunk);
+}
+
+void ChunkTerrain::load_done(Variant chunk){
+
+	ChunkGenerator *generator = Object::cast_to<ChunkGenerator>(chunk);
+
+	add_child(generator);
+	String xx =  NumberToString(generator->get_x()/get_chunk_size()).c_str();
+	String zz =  NumberToString(generator->get_z()/get_chunk_size()).c_str();
+	String key = xx + "," + zz;
+	mtx.lock();
+	chunks[key] = generator;
+	unready_chunks.erase(key);
+	mtx.unlock();
+	//thread.wait_to_finish();
+
+}
+
+Variant* ChunkTerrain::get_chunk(int x_local, int z_local){
+	String xx =  NumberToString(x_local).c_str();
+	String zz =  NumberToString(z_local).c_str();
+	String key = xx + "," + zz;
+	if(chunks.has(key)){
+		return chunks.getptr(key);
+	}
+	return nullptr;
+}
+
+
+void ChunkTerrain::update_chunks(){
+	Vector3 player_translation = Vector3(get_x(),0,get_z());
+	int p_x = int(player_translation.x) / _chunk_size;
+	int p_z = int(player_translation.z) / _chunk_size;
+
+	for (int i = (p_x - _chunk_amount * 0.5); i< (p_x + _chunk_amount * 0.5); i++){
+		for (int j = (p_z - _chunk_amount * 0.5);j< (p_z + _chunk_amount * 0.5); j++){
+			add_chunk(i, j);
+			Variant *chunk = get_chunk(i,j);
+			if (chunk != nullptr){
+				ChunkGenerator *gen = Object::cast_to<ChunkGenerator>(*chunk);
+				gen->set_should_remove(false);
+			}
+
+		}
+	}
 
 }
 
