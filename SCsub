@@ -8,6 +8,9 @@ chunk_files = [
 
 	"generator/chunk_generator.cpp",
 	"terrain/chunk_terrain.cpp",
+	"server/thread_pool.cpp",
+    "server/thread_pool_job.cpp",
+    "server/thread_pool_execute_job.cpp",
 
 ]
 

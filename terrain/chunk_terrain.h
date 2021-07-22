@@ -4,6 +4,7 @@
 
 #include "../../core/reference.h"
 #include "../../core/array.h"
+#include "../../core/bind/core_bind.h"
 #include "../../modules/opensimplex/open_simplex_noise.h"
 #include "../../scene/resources/material.h"
 #include <scene/3d/spatial.h>
@@ -11,8 +12,12 @@
 #include "../../core/dictionary.h"
 #include "../../core/ustring.h"
 #include "../../core/os/thread.h"
+#include "../../core/os/semaphore.h"
+#include "../../core/os/mutex.h"
 #include <thread>
 #include <mutex>
+#include <sstream>
+#include "../server/thread_pool.h"
 
 class ChunkGenerator;
 
@@ -58,8 +63,8 @@ private:
 
 	//CHUNK GENERATION
 	void add_chunk(int x, int z);
-	static void load_chunk(void *p_data);
-	void load_done(Variant chunk);
+	void load_chunk(Array arr);
+	void load_done(Variant variant);
 	Variant* get_chunk(int x,int z);
 
 
@@ -69,13 +74,13 @@ private:
     int _z;
     int _chunk_size;
     int _chunk_amount;
-	Thread thread;
     ChunkGenerator *_generator = nullptr;
 	Ref<OpenSimplexNoise> _noise;
 	Ref<ShaderMaterial> _surface_material;
 	Dictionary chunks;
 	Dictionary unready_chunks;
 	std::mutex mtx;
+    ThreadPool pool;
 
 
 

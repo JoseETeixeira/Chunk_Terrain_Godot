@@ -5,6 +5,7 @@
 #include <core/core_string_names.h>
 #include <core/array.h>
 
+
 ChunkTerrain::ChunkTerrain(){
 	set_x(0);
 	set_z(0);
@@ -14,10 +15,12 @@ ChunkTerrain::ChunkTerrain(){
 }
 
 ChunkTerrain::~ChunkTerrain(){
+
 }
 
 void ChunkTerrain::_notification(int p_what) {
 	switch (p_what) {
+		
 		case NOTIFICATION_ENTER_TREE :
 
 			break;
@@ -65,6 +68,7 @@ int ChunkTerrain::get_chunk_amount(){
 
 
 void ChunkTerrain::_process(float delta){
+	
 	update_chunks();
 }
 
@@ -124,26 +128,26 @@ void ChunkTerrain::add_chunk(int x_local, int z_local){
 	if (chunks.has(key) || unready_chunks.has(key)){
 		return;
 	}
+	
+	Array arr;
+	arr.push_back(x_local);
+	arr.push_back(z_local);
+	arr.push_back(_chunk_size);
+	arr.push_back(this);
+	pool.create_execute_job(this, "load_chunk", arr);
+	//load_chunk(&arr);
 
-	if(!thread.is_started()){
-		Array arr;
-		arr.push_back(x_local);
-		arr.push_back(z_local);
-		arr.push_back(_chunk_size);
-		arr.push_back(this);
-		//thread.start(load_chunk,&arr);
-		load_chunk(&arr);
-		mtx.lock();
-		unready_chunks[key] = 1;
-		mtx.unlock();
+	//mtx.lock();
+	unready_chunks[key] = 1;
+	//mtx.unlock();
 
-	}
+	
+
 
 
 }
 
-void ChunkTerrain::load_chunk(void *p_data){
-	Array &arr = *static_cast<Array *>(p_data);
+void ChunkTerrain::load_chunk(Array arr){
 	int x_local = arr.pop_front();
 	int z_local = arr.pop_front();
 	int chunk_size = arr.pop_front();
@@ -155,21 +159,22 @@ void ChunkTerrain::load_chunk(void *p_data){
 	chunk->set_chunk_size(chunk_size);
 	chunk->set_translation(Vector3(x_local*chunk_size,0,z_local*chunk_size));
 
-	terrain->load_done(chunk);
+	call_deferred("load_done",chunk);
 }
 
-void ChunkTerrain::load_done(Variant chunk){
-
-	ChunkGenerator *generator = Object::cast_to<ChunkGenerator>(chunk);
-
-	add_child(generator);
-	String xx =  NumberToString(generator->get_x()/get_chunk_size()).c_str();
-	String zz =  NumberToString(generator->get_z()/get_chunk_size()).c_str();
-	String key = xx + "," + zz;
+void ChunkTerrain::load_done(Variant variant){
+	ChunkGenerator *chunk = Object::cast_to<ChunkGenerator>(variant);
 	mtx.lock();
-	chunks[key] = generator;
+	add_child(chunk);
+	String xx =  NumberToString(chunk->get_x()/get_chunk_size()).c_str();
+	String zz =  NumberToString(chunk->get_z()/get_chunk_size()).c_str();
+	String key = xx + "," + zz;
+	//
+	chunks[key] = chunk;
 	unready_chunks.erase(key);
+	//mtx.unlock();
 	mtx.unlock();
+	pool.update();
 	//thread.wait_to_finish();
 
 }
@@ -201,6 +206,7 @@ void ChunkTerrain::update_chunks(){
 
 		}
 	}
+	
 
 }
 
@@ -217,6 +223,8 @@ void ChunkTerrain::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_chunk_amount"), &ChunkTerrain::get_chunk_amount);
 
 	ClassDB::bind_method(D_METHOD("set_noise", "noise"), &ChunkTerrain::set_noise);
+	ClassDB::bind_method(D_METHOD("load_chunk", "arr"), &ChunkTerrain::load_chunk);
+	ClassDB::bind_method(D_METHOD("load_done", "var"), &ChunkTerrain::load_done);
 	ClassDB::bind_method(D_METHOD("get_noise"), &ChunkTerrain::get_noise);
 
 	ClassDB::bind_method(D_METHOD("set_surface_material", "surface_material"), &ChunkTerrain::set_surface_material);

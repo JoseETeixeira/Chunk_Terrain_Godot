@@ -56,6 +56,11 @@
         "xmemory0": "cpp",
         "xstddef": "cpp",
         "xtr1common": "cpp",
-        "xlocnum": "cpp"
+        "xlocnum": "cpp",
+        "condition_variable": "cpp",
+        "ctime": "cpp",
+        "map": "cpp",
+        "future": "cpp",
+        "mutex": "cpp"
     }
 }
