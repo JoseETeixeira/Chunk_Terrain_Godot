@@ -14,8 +14,8 @@ Sometimes simplicity is all you need. This module lets you generate Blocky SDF t
 
 # Changelog:
 
-Basic generator is working
-07/22/2021 - Auto-generates terrain and threads
+- Basic generator is working
+- 07/22/2021 - Auto-generates terrain and threads
 
 # TODO:
 - Generate water
