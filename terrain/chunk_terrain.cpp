@@ -68,8 +68,11 @@ int ChunkTerrain::get_chunk_amount(){
 
 
 void ChunkTerrain::_process(float delta){
+	if(_noise!=nullptr && _surface_material!=nullptr){
+		update_chunks();
+	}
 	
-	update_chunks();
+	
 }
 
 void ChunkTerrain::set_noise(Ref<OpenSimplexNoise> noise) {
@@ -164,7 +167,6 @@ void ChunkTerrain::load_chunk(Array arr){
 
 void ChunkTerrain::load_done(Variant variant){
 	ChunkGenerator *chunk = Object::cast_to<ChunkGenerator>(variant);
-	mtx.lock();
 	add_child(chunk);
 	String xx =  NumberToString(chunk->get_x()/get_chunk_size()).c_str();
 	String zz =  NumberToString(chunk->get_z()/get_chunk_size()).c_str();
@@ -173,7 +175,6 @@ void ChunkTerrain::load_done(Variant variant){
 	chunks[key] = chunk;
 	unready_chunks.erase(key);
 	//mtx.unlock();
-	mtx.unlock();
 	//thread.wait_to_finish();
 
 }
@@ -205,7 +206,7 @@ void ChunkTerrain::update_chunks(){
 
 		}
 	}
-	
+
 	
 
 }
