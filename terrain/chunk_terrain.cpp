@@ -174,7 +174,6 @@ void ChunkTerrain::load_done(Variant variant){
 	unready_chunks.erase(key);
 	//mtx.unlock();
 	mtx.unlock();
-	pool.update();
 	//thread.wait_to_finish();
 
 }
@@ -206,6 +205,7 @@ void ChunkTerrain::update_chunks(){
 
 		}
 	}
+	
 	
 
 }
