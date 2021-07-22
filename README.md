@@ -5,7 +5,7 @@ Sometimes simplicity is all you need. This module lets you generate Blocky SDF t
 
 ## DISCORD
 
-[![Discord](https://img.shields.io/discord/850070170793410582?style=flat-square&logo=discord "Discord")](https://discord.gg/Xfv3xrxT)
+[![Discord](https://img.shields.io/discord/798876142458109952?logo=Discord "Discord")](https://discord.gg/Xfv3xrxT)
 
 ## ABOUT THE MODULE
 
