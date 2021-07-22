@@ -12,15 +12,25 @@ ChunkTerrain::ChunkTerrain(){
 	set_chunk_size(32);
 	set_chunk_amount(16);
 	set_process(true);
+	pool.set_thread_count(8);
 }
 
 ChunkTerrain::~ChunkTerrain(){
-
+	Array chunk_keys = chunks.keys();
+	Array unready_chunks_keys = unready_chunks.keys();
+	for (int it =0; it<chunk_keys.size(); it++){
+		memdelete(chunks.getptr(chunk_keys[it]));
+	}
+	for (int it =0; it<unready_chunks_keys.size(); it++){
+		memdelete(unready_chunks.getptr(unready_chunks_keys[it]));
+	}
+	chunks.clear();
+	unready_chunks.clear();
 }
 
 void ChunkTerrain::_notification(int p_what) {
 	switch (p_what) {
-		
+
 		case NOTIFICATION_ENTER_TREE :
 
 			break;
@@ -71,8 +81,8 @@ void ChunkTerrain::_process(float delta){
 	if(_noise!=nullptr && _surface_material!=nullptr){
 		update_chunks();
 	}
-	
-	
+
+
 }
 
 void ChunkTerrain::set_noise(Ref<OpenSimplexNoise> noise) {
@@ -80,10 +90,6 @@ void ChunkTerrain::set_noise(Ref<OpenSimplexNoise> noise) {
 		return;
 	}
 	_noise = noise;
-	if(_generator!=nullptr){
-		_generator->set_noise(_noise);
-	}
-
 }
 
 
@@ -95,9 +101,6 @@ void ChunkTerrain::set_surface_material(Ref<ShaderMaterial> surface_material) {
 		return;
 	}
 	_surface_material = surface_material;
-	if(_generator!=nullptr){
-		_generator->set_surface_material(_surface_material);
-	}
 
 }
 
@@ -107,13 +110,7 @@ Ref<ShaderMaterial> ChunkTerrain::get_surface_material() {
 	return _surface_material;
 }
 
-void ChunkTerrain::set_generator(ChunkGenerator *generator){
-	if (_generator == generator){
-		return;
-	}
-	_generator = generator;
 
-}
 
 template <typename T>
 std::string NumberToString ( T Number )
@@ -131,7 +128,7 @@ void ChunkTerrain::add_chunk(int x_local, int z_local){
 	if (chunks.has(key) || unready_chunks.has(key)){
 		return;
 	}
-	
+
 	Array arr;
 	arr.push_back(x_local);
 	arr.push_back(z_local);
@@ -142,11 +139,6 @@ void ChunkTerrain::add_chunk(int x_local, int z_local){
 	//mtx.lock();
 	unready_chunks[key] = 1;
 	//mtx.unlock();
-
-	
-
-
-
 }
 
 void ChunkTerrain::load_chunk(Array arr){
@@ -205,7 +197,7 @@ void ChunkTerrain::update_chunks(){
 		}
 	}
 
-	
+
 
 }
 

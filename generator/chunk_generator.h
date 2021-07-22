@@ -56,17 +56,11 @@ private:
     MeshDataTool *_data_tool;
     SurfaceTool *_surface_tool;
     Ref<ShaderMaterial> _surface_material;
+	MeshInstance* mesh_instance;
 
 
-    
 
-    struct Chunk {
-		// Position in mesh block coordinate system
-		std::vector<Vector3i> grid_positions;
-		MeshInstance* mesh_instance;
-	};
     ChunkTerrain *_parent;
-    std::vector<Chunk *> _chunks; // Does not have nulls
 
 
 };

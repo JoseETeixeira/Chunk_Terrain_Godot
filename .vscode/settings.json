@@ -61,6 +61,7 @@
         "ctime": "cpp",
         "map": "cpp",
         "future": "cpp",
-        "mutex": "cpp"
+        "mutex": "cpp",
+        "xtree": "cpp"
     }
 }
