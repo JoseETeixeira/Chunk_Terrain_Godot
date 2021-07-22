@@ -136,7 +136,6 @@ void ChunkTerrain::add_chunk(int x_local, int z_local){
 	arr.push_back(x_local);
 	arr.push_back(z_local);
 	arr.push_back(_chunk_size);
-	arr.push_back(this);
 	pool.create_execute_job(this, "load_chunk", arr);
 	//load_chunk(&arr);
 
@@ -154,7 +153,6 @@ void ChunkTerrain::load_chunk(Array arr){
 	int x_local = arr.pop_front();
 	int z_local = arr.pop_front();
 	int chunk_size = arr.pop_front();
-	ChunkTerrain *terrain = Object::cast_to<ChunkTerrain>(arr.pop_front());
 
 	ChunkGenerator *chunk = memnew(ChunkGenerator(x_local,z_local));
 	chunk->set_x(x_local * chunk_size);
