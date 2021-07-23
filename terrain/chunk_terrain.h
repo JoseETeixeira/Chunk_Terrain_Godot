@@ -76,9 +76,7 @@ private:
 	Ref<ShaderMaterial> _surface_material;
 	Dictionary chunks;
 	Dictionary unready_chunks;
-	std::mutex mtx;
     ThreadPool pool;
-
 
 
 };

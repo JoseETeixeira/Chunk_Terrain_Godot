@@ -11,8 +11,12 @@ ChunkTerrain::ChunkTerrain(){
 	set_z(0);
 	set_chunk_size(32);
 	set_chunk_amount(16);
-	set_process(true);
+	pool.set_use_threads(true);
 	pool.set_thread_count(8);
+	pool.set_thread_fallback_count(4);
+	pool.set_max_work_per_frame_percent(20);
+
+	set_process(true);
 }
 
 ChunkTerrain::~ChunkTerrain(){
@@ -134,9 +138,6 @@ void ChunkTerrain::add_chunk(int x_local, int z_local){
 	arr.push_back(z_local);
 	arr.push_back(_chunk_size);
 	pool.create_execute_job(this, "load_chunk", arr);
-	//load_chunk(&arr);
-
-	//mtx.lock();
 	unready_chunks[key] = 1;
 	//mtx.unlock();
 }
@@ -187,6 +188,7 @@ void ChunkTerrain::update_chunks(){
 
 	for (int i = (p_x - _chunk_amount * 0.5); i< (p_x + _chunk_amount * 0.5); i++){
 		for (int j = (p_z - _chunk_amount * 0.5);j< (p_z + _chunk_amount * 0.5); j++){
+
 			add_chunk(i, j);
 			Variant *chunk = get_chunk(i,j);
 			if (chunk != nullptr){
@@ -214,9 +216,12 @@ void ChunkTerrain::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_chunk_amount"), &ChunkTerrain::get_chunk_amount);
 
 	ClassDB::bind_method(D_METHOD("set_noise", "noise"), &ChunkTerrain::set_noise);
+	ClassDB::bind_method(D_METHOD("get_noise"), &ChunkTerrain::get_noise);
+
+	ClassDB::bind_method(D_METHOD("add_chunk", "x","y"), &ChunkTerrain::add_chunk);
 	ClassDB::bind_method(D_METHOD("load_chunk", "arr"), &ChunkTerrain::load_chunk);
 	ClassDB::bind_method(D_METHOD("load_done", "var"), &ChunkTerrain::load_done);
-	ClassDB::bind_method(D_METHOD("get_noise"), &ChunkTerrain::get_noise);
+
 
 	ClassDB::bind_method(D_METHOD("set_surface_material", "surface_material"), &ChunkTerrain::set_surface_material);
 	ClassDB::bind_method(D_METHOD("get_surface_material"), &ChunkTerrain::get_surface_material);

@@ -24,10 +24,10 @@ Sometimes simplicity is all you need. This module lets you generate Blocky SDF t
 # Changelog:
 
 - Basic generator is working
-- 07/22/2021 - Auto-generates terrain and threads
+- 07/22/2021 - Auto-generates terrain and threads,Clean up threads
 
 # TODO:
 - Generate water
 - Generate grass
 - Generate trees
-- Clean up threads
+
