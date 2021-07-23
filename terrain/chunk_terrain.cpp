@@ -146,17 +146,19 @@ void ChunkTerrain::add_chunk(int x_local, int z_local){
 	if (chunks.has(key) || unready_chunks.has(key)){
 		return;
 	}
+
 	pool = ThreadPool::get_singleton();
 	pool->set_use_threads(true);
 	pool->set_thread_count(8);
 	pool->set_thread_fallback_count(4);
+	pool->set_max_work_per_frame_percent(30);
 	Array arr;
 	arr.push_back(x_local);
 	arr.push_back(z_local);
 	arr.push_back(_chunk_size);
 	pool->create_execute_job(this, "load_chunk", arr);
 	unready_chunks[key] = 1;
-	//mtx.unlock();
+
 }
 
 void ChunkTerrain::load_chunk(Array arr){
@@ -171,12 +173,13 @@ void ChunkTerrain::load_chunk(Array arr){
 	chunk->set_translation(Vector3(x_local*chunk_size,0,z_local*chunk_size));
 
 	load_done(chunk);
+
 	//call_deferred("load_done",chunk);
 }
 
 void ChunkTerrain::load_done(Variant variant){
-	ChunkGenerator *chunk = Object::cast_to<ChunkGenerator>(variant);
 	mtx.lock();
+	ChunkGenerator *chunk = Object::cast_to<ChunkGenerator>(variant);
 	add_child(chunk);
 	String xx =  NumberToString(chunk->get_x()/get_chunk_size()).c_str();
 	String zz =  NumberToString(chunk->get_z()/get_chunk_size()).c_str();
@@ -184,10 +187,14 @@ void ChunkTerrain::load_done(Variant variant){
 	chunks[key] = chunk;
 	unready_chunks.erase(key);
 	mtx.unlock();
-	return;
+	call_deferred("_on_load_done",chunk->get_x(),chunk->get_z());
 	//mtx.unlock();
 	//thread.wait_to_finish();
 
+}
+
+void ChunkTerrain::_on_load_done(int x, int z){
+	print_line(String("Chunk Loaded {{0}, {1}}").format(varray(x, z)));
 }
 
 Variant* ChunkTerrain::get_chunk(int x_local, int z_local){
@@ -286,6 +293,8 @@ void ChunkTerrain::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("add_chunk", "x","y"), &ChunkTerrain::add_chunk);
 	ClassDB::bind_method(D_METHOD("load_chunk", "arr"), &ChunkTerrain::load_chunk);
 	ClassDB::bind_method(D_METHOD("load_done", "var"), &ChunkTerrain::load_done);
+
+	ClassDB::bind_method(D_METHOD("_on_load_done","x","z"), &ChunkTerrain::_on_load_done);
 
 
 	ClassDB::bind_method(D_METHOD("set_surface_material", "surface_material"), &ChunkTerrain::set_surface_material);
