@@ -7,16 +7,7 @@
 
 
 ChunkTerrain::ChunkTerrain(){
-	set_x(0);
-	set_z(0);
-	set_chunk_size(32);
-	set_chunk_amount(16);
-	pool.set_use_threads(true);
-	pool.set_thread_count(8);
-	pool.set_thread_fallback_count(4);
-	pool.set_max_work_per_frame_percent(20);
 
-	set_process(true);
 }
 
 ChunkTerrain::~ChunkTerrain(){
@@ -36,6 +27,14 @@ void ChunkTerrain::_notification(int p_what) {
 	switch (p_what) {
 
 		case NOTIFICATION_ENTER_TREE :
+			set_x(0);
+			set_z(0);
+			set_chunk_size(32);
+			set_chunk_amount(16);
+			pool.set_use_threads(true);
+			pool.set_thread_count(8);
+			pool.set_thread_fallback_count(4);
+			pool.set_max_work_per_frame_percent(20);
 
 			break;
 		case NOTIFICATION_EXIT_TREE:
@@ -84,6 +83,8 @@ int ChunkTerrain::get_chunk_amount(){
 void ChunkTerrain::_process(float delta){
 	if(_noise!=nullptr && _surface_material!=nullptr){
 		update_chunks();
+		clean_up_chunks();
+		reset_chunks();
 	}
 
 
@@ -203,6 +204,29 @@ void ChunkTerrain::update_chunks(){
 
 }
 
+
+void ChunkTerrain::clean_up_chunks(){
+	Array chunk_keys = chunks.keys();
+	for (auto it =0; it<chunk_keys.size(); it++){
+		ChunkGenerator* chunk = Object::cast_to<ChunkGenerator>(chunks.get_valid(chunk_keys[it]));
+		if(chunk->get_should_remove() == true){
+			memdelete(chunk);
+			chunks.erase(chunk_keys[it]);
+
+		}
+
+	}
+}
+
+
+void ChunkTerrain::reset_chunks(){
+	Array chunk_keys = chunks.keys();
+	for (auto it =0; it<chunk_keys.size(); it++){
+		ChunkGenerator* chunk = Object::cast_to<ChunkGenerator>(chunks.get_valid(chunk_keys[it]));
+		chunk->set_should_remove(true);
+
+	}
+}
 
 void ChunkTerrain::_bind_methods() {
 

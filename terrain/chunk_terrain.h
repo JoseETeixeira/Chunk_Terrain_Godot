@@ -67,6 +67,8 @@ private:
 
 
 	void update_chunks();
+	void clean_up_chunks();
+	void reset_chunks();
 
     int _x;
     int _z;
