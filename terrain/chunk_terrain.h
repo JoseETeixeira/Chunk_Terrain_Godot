@@ -1,3 +1,7 @@
+
+#ifndef CHUNK_TERRAIN_H
+#define CHUNK_TERRAIN_H
+
 /* chunk_terrain.h */
 /*
 
@@ -22,8 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-#ifndef CHUNK_TERRAIN_H
-#define CHUNK_TERRAIN_H
 
 #include "../../core/reference.h"
 #include "../../core/array.h"
@@ -101,7 +103,7 @@ private:
 	Ref<ShaderMaterial> _surface_material;
 	Dictionary chunks;
 	Dictionary unready_chunks;
-    ThreadPool pool;
+    bool should_generate;
 
 
 };

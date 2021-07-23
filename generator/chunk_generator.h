@@ -1,3 +1,7 @@
+
+#ifndef CHUNK_GENERATOR_H
+#define CHUNK_GENERATOR_H
+
 /*
 
 Copyright (c) 2021 José Eduardo da Silva Teixeira Junior
@@ -21,9 +25,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-
-#ifndef CHUNK_GENERATOR_H
-#define CHUNK_GENERATOR_H
 
 #include <core/reference.h>
 #include "../../scene/3d/mesh_instance.h"

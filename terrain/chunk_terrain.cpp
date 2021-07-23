@@ -49,15 +49,16 @@ ChunkTerrain::~ChunkTerrain(){
 void ChunkTerrain::_notification(int p_what) {
 	switch (p_what) {
 
+		case NOTIFICATION_READY:
+			should_generate = true;
+			break;
+
 		case NOTIFICATION_ENTER_TREE :
 			set_x(0);
 			set_z(0);
 			set_chunk_size(32);
 			set_chunk_amount(16);
-			pool.set_use_threads(true);
-			pool.set_thread_count(8);
-			pool.set_thread_fallback_count(4);
-			pool.set_max_work_per_frame_percent(20);
+			should_generate = false;
 
 			break;
 		case NOTIFICATION_EXIT_TREE:
@@ -104,7 +105,7 @@ int ChunkTerrain::get_chunk_amount(){
 
 
 void ChunkTerrain::_process(float delta){
-	if(_noise!=nullptr && _surface_material!=nullptr){
+	if(_noise!=nullptr && _surface_material!=nullptr && should_generate == true){
 		update_chunks();
 		clean_up_chunks();
 		reset_chunks();
@@ -156,12 +157,12 @@ void ChunkTerrain::add_chunk(int x_local, int z_local){
 	if (chunks.has(key) || unready_chunks.has(key)){
 		return;
 	}
-
+	ThreadPool *pool = ThreadPool::get_singleton();
 	Array arr;
 	arr.push_back(x_local);
 	arr.push_back(z_local);
 	arr.push_back(_chunk_size);
-	pool.create_execute_job(this, "load_chunk", arr);
+	pool->create_execute_job(this, "load_chunk", arr);
 	unready_chunks[key] = 1;
 	//mtx.unlock();
 }
