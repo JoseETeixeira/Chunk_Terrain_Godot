@@ -146,7 +146,10 @@ void ChunkTerrain::add_chunk(int x_local, int z_local){
 	if (chunks.has(key) || unready_chunks.has(key)){
 		return;
 	}
-	ThreadPool *pool = ThreadPool::get_singleton();
+	pool = ThreadPool::get_singleton();
+	pool->set_use_threads(true);
+	pool->set_thread_count(8);
+	pool->set_thread_fallback_count(4);
 	Array arr;
 	arr.push_back(x_local);
 	arr.push_back(z_local);
@@ -167,18 +170,21 @@ void ChunkTerrain::load_chunk(Array arr){
 	chunk->set_chunk_size(chunk_size);
 	chunk->set_translation(Vector3(x_local*chunk_size,0,z_local*chunk_size));
 
-	call_deferred("load_done",chunk);
+	load_done(chunk);
+	//call_deferred("load_done",chunk);
 }
 
 void ChunkTerrain::load_done(Variant variant){
 	ChunkGenerator *chunk = Object::cast_to<ChunkGenerator>(variant);
+	mtx.lock();
 	add_child(chunk);
 	String xx =  NumberToString(chunk->get_x()/get_chunk_size()).c_str();
 	String zz =  NumberToString(chunk->get_z()/get_chunk_size()).c_str();
 	String key = xx + "," + zz;
-	//
 	chunks[key] = chunk;
 	unready_chunks.erase(key);
+	mtx.unlock();
+	return;
 	//mtx.unlock();
 	//thread.wait_to_finish();
 
@@ -203,7 +209,7 @@ void ChunkTerrain::update_chunks(){
 
 			set_x(s_player->get_translation().x);
 
-	
+
 			set_z(s_player->get_translation().z);
 		}
 	}

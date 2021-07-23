@@ -105,6 +105,8 @@ private:
 	Dictionary chunks;
 	Dictionary unready_chunks;
     bool should_generate;
+	Mutex mtx;
+	ThreadPool *pool;
     NodePath player_path;
 
 
