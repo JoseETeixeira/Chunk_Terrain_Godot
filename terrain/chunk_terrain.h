@@ -90,7 +90,7 @@ private:
 	void load_chunk(Array arr);
 	void load_done(Variant variant);
 	Variant* get_chunk(int x,int z);
-	void _on_load_done(int x, int z);
+	void _on_load_done(Variant variant);
 
 
 	void update_chunks();
@@ -108,7 +108,6 @@ private:
     bool should_generate;
 	Mutex mtx;
 	ThreadPool *pool;
-	_Thread *thread;
     NodePath player_path;
 
 

@@ -35,6 +35,12 @@ ChunkTerrain::ChunkTerrain(){
 	set_chunk_size(32);
 	set_chunk_amount(16);
 	should_generate = true;
+	pool = ThreadPool::get_singleton();
+	pool->set_use_threads(true);
+	pool->set_thread_count(8);
+	pool->set_thread_fallback_count(4);
+	pool->set_max_time_per_frame(300);
+	pool->set_max_work_per_frame_percent(30);
 	set_process(true);
 }
 
@@ -94,7 +100,7 @@ int ChunkTerrain::get_chunk_amount(){
 
 
 void ChunkTerrain::_process(float delta){
-	if(_noise!=nullptr && _surface_material!=nullptr){
+	if(_noise!=NULL && _surface_material!=nullptr){
 		update_chunks();
 		clean_up_chunks();
 		reset_chunks();
@@ -147,17 +153,16 @@ void ChunkTerrain::add_chunk(int x_local, int z_local){
 		return;
 	}
 
-	pool = ThreadPool::get_singleton();
-	pool->set_use_threads(true);
-	pool->set_thread_count(8);
-	pool->set_thread_fallback_count(4);
-	pool->set_max_work_per_frame_percent(30);
+
 	Array arr;
 	arr.push_back(x_local);
 	arr.push_back(z_local);
 	arr.push_back(_chunk_size);
+
 	pool->create_execute_job(this, "load_chunk", arr);
+
 	unready_chunks[key] = 1;
+
 
 }
 
@@ -178,23 +183,35 @@ void ChunkTerrain::load_chunk(Array arr){
 }
 
 void ChunkTerrain::load_done(Variant variant){
-	mtx.lock();
+
 	ChunkGenerator *chunk = Object::cast_to<ChunkGenerator>(variant);
-	add_child(chunk);
-	String xx =  NumberToString(chunk->get_x()/get_chunk_size()).c_str();
-	String zz =  NumberToString(chunk->get_z()/get_chunk_size()).c_str();
-	String key = xx + "," + zz;
-	chunks[key] = chunk;
-	unready_chunks.erase(key);
-	mtx.unlock();
-	call_deferred("_on_load_done",chunk->get_x(),chunk->get_z());
+	if(chunk!=NULL){
+		mtx.lock();
+		add_child(chunk);
+		String xx =  NumberToString(chunk->get_x()/get_chunk_size()).c_str();
+		String zz =  NumberToString(chunk->get_z()/get_chunk_size()).c_str();
+		String key = xx + "," + zz;
+		chunks[key] = chunk;
+		unready_chunks.erase(key);
+		mtx.unlock();
+		call_deferred("_on_load_done",chunk);
+
+	}
+
 	//mtx.unlock();
 	//thread.wait_to_finish();
 
 }
 
-void ChunkTerrain::_on_load_done(int x, int z){
-	print_line(String("Chunk Loaded {{0}, {1}}").format(varray(x, z)));
+void ChunkTerrain::_on_load_done(Variant variant){
+
+	ChunkGenerator *chunk = Object::cast_to<ChunkGenerator>(variant);
+	if(chunk!=NULL){
+		print_line(String("Chunk Loaded {{0}, {1}}").format(varray(chunk->get_x(), chunk->get_z())));
+
+	}
+
+
 }
 
 Variant* ChunkTerrain::get_chunk(int x_local, int z_local){
@@ -204,15 +221,15 @@ Variant* ChunkTerrain::get_chunk(int x_local, int z_local){
 	if(chunks.has(key)){
 		return chunks.getptr(key);
 	}
-	return nullptr;
+	return NULL;
 }
 
 
 void ChunkTerrain::update_chunks(){
 	Node *player = get_node(player_path);
-	if (player!=nullptr && player->is_inside_tree() == true){
+	if (player!=NULL && player->is_inside_tree() == true){
 		Spatial *s_player = Object::cast_to<Spatial>(player);
-		if(s_player != nullptr){
+		if(s_player != NULL){
 
 			set_x(s_player->get_translation().x);
 
@@ -229,9 +246,12 @@ void ChunkTerrain::update_chunks(){
 
 			add_chunk(i, j);
 			Variant *chunk = get_chunk(i,j);
-			if (chunk != nullptr){
+			if (chunk != NULL){
 				ChunkGenerator *gen = Object::cast_to<ChunkGenerator>(*chunk);
-				gen->set_should_remove(false);
+				if(gen != NULL){
+					gen->set_should_remove(false);
+				}
+
 			}
 
 		}
@@ -244,24 +264,37 @@ void ChunkTerrain::update_chunks(){
 
 void ChunkTerrain::clean_up_chunks(){
 	Array chunk_keys = chunks.keys();
-	for (auto it =0; it<chunk_keys.size(); it++){
-		ChunkGenerator* chunk = Object::cast_to<ChunkGenerator>(chunks.get_valid(chunk_keys[it]));
-		if(chunk->get_should_remove() == true){
-			memdelete(chunk);
-			chunks.erase(chunk_keys[it]);
+	if(chunk_keys.size() > 0){
+		for (auto it =0; it<chunk_keys.size()-1; it++){
+			if(chunks.has(chunk_keys[it])){
+				ChunkGenerator* chunk = Object::cast_to<ChunkGenerator>(chunks.get(chunk_keys[it],NULL));
+				if(chunk!=NULL){
+					if(chunk->get_should_remove() == true){
+						memdelete(chunk);
+						chunks.erase(chunk_keys[it]);
+
+					}
+				}
+			}
 
 		}
-
 	}
+
 }
 
 
 void ChunkTerrain::reset_chunks(){
 	Array chunk_keys = chunks.keys();
-	for (auto it =0; it<chunk_keys.size(); it++){
-		ChunkGenerator* chunk = Object::cast_to<ChunkGenerator>(chunks.get_valid(chunk_keys[it]));
-		chunk->set_should_remove(true);
+	if(chunk_keys.size() > 0){
+		for (auto it =0; it<chunk_keys.size()-1; it++){
+			if(chunks.has(chunk_keys[it])){
+				ChunkGenerator* chunk = Object::cast_to<ChunkGenerator>(chunks.get(chunk_keys[it],NULL));
+				if(chunk!=NULL){
+					chunk->set_should_remove(true);
+				}
+			}
 
+		}
 	}
 }
 
@@ -294,7 +327,7 @@ void ChunkTerrain::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("load_chunk", "arr"), &ChunkTerrain::load_chunk);
 	ClassDB::bind_method(D_METHOD("load_done", "var"), &ChunkTerrain::load_done);
 
-	ClassDB::bind_method(D_METHOD("_on_load_done","x","z"), &ChunkTerrain::_on_load_done);
+	ClassDB::bind_method(D_METHOD("_on_load_done","chunk"), &ChunkTerrain::_on_load_done);
 
 
 	ClassDB::bind_method(D_METHOD("set_surface_material", "surface_material"), &ChunkTerrain::set_surface_material);
