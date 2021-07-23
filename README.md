@@ -14,20 +14,27 @@ Sometimes simplicity is all you need. This module lets you generate Blocky SDF t
 
 ![Blocky screenshot](doc/basic_screenshot.png)
 
+
+## DOCUMENTATION
+
 # Instructions:
 
 - Clone the module, rename it to chunk_terrain and move to godot/modules folder.
 - Compile godot normally.
-
-## DOCUMENTATION
+- Set material and noise.
+- Assign a player.
+- Close/Open scene to see changes in editor, or just run.
 
 # Changelog:
 
-- Basic generator is working
-- 07/22/2021 - Auto-generates terrain and threads,Clean up threads
+- 07/22/2021 - Auto-generates terrain and threads,clean-up threads
+- 07/23/2021 - Player is automatically found and used once assigned. No scripts are needed anymore
 
 # TODO:
 - Generate water
 - Generate grass
 - Generate trees
+- Let clamping be optional
+- Add noise to water
+- Add noise to trees
 

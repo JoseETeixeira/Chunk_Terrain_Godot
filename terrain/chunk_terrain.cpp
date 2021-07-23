@@ -30,7 +30,12 @@ SOFTWARE.
 
 
 ChunkTerrain::ChunkTerrain(){
-
+	set_x(0);
+	set_z(0);
+	set_chunk_size(32);
+	set_chunk_amount(16);
+	should_generate = true;
+	set_process(true);
 }
 
 ChunkTerrain::~ChunkTerrain(){
@@ -48,22 +53,6 @@ ChunkTerrain::~ChunkTerrain(){
 
 void ChunkTerrain::_notification(int p_what) {
 	switch (p_what) {
-
-		case NOTIFICATION_READY:
-			should_generate = true;
-			break;
-
-		case NOTIFICATION_ENTER_TREE :
-			set_x(0);
-			set_z(0);
-			set_chunk_size(32);
-			set_chunk_amount(16);
-			should_generate = false;
-
-			break;
-		case NOTIFICATION_EXIT_TREE:
-			//memdelete(_generator);
-			break;
 		case NOTIFICATION_PROCESS:
 			_process(get_process_delta_time());
 			break;
@@ -105,7 +94,7 @@ int ChunkTerrain::get_chunk_amount(){
 
 
 void ChunkTerrain::_process(float delta){
-	if(_noise!=nullptr && _surface_material!=nullptr && should_generate == true){
+	if(_noise!=nullptr && _surface_material!=nullptr){
 		update_chunks();
 		clean_up_chunks();
 		reset_chunks();
@@ -207,6 +196,17 @@ Variant* ChunkTerrain::get_chunk(int x_local, int z_local){
 
 
 void ChunkTerrain::update_chunks(){
+	Node *player = get_node(player_path);
+	if (player!=nullptr && player->is_inside_tree() == true){
+		Spatial *s_player = Object::cast_to<Spatial>(player);
+		if(s_player != nullptr){
+
+			set_x(s_player->get_translation().x);
+
+	
+			set_z(s_player->get_translation().z);
+		}
+	}
 	Vector3 player_translation = Vector3(get_x(),0,get_z());
 	int p_x = int(player_translation.x) / _chunk_size;
 	int p_z = int(player_translation.z) / _chunk_size;
@@ -252,6 +252,14 @@ void ChunkTerrain::reset_chunks(){
 	}
 }
 
+void ChunkTerrain::set_player_path(NodePath path){
+	player_path = path;
+
+}
+NodePath ChunkTerrain::get_player_path(){
+	return player_path;
+}
+
 void ChunkTerrain::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("set_x", "x"), &ChunkTerrain::set_x);
@@ -266,6 +274,9 @@ void ChunkTerrain::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_noise", "noise"), &ChunkTerrain::set_noise);
 	ClassDB::bind_method(D_METHOD("get_noise"), &ChunkTerrain::get_noise);
 
+	ClassDB::bind_method(D_METHOD("set_player_path", "path"), &ChunkTerrain::set_player_path);
+	ClassDB::bind_method(D_METHOD("get_player_path"), &ChunkTerrain::get_player_path);
+
 	ClassDB::bind_method(D_METHOD("add_chunk", "x","y"), &ChunkTerrain::add_chunk);
 	ClassDB::bind_method(D_METHOD("load_chunk", "arr"), &ChunkTerrain::load_chunk);
 	ClassDB::bind_method(D_METHOD("load_done", "var"), &ChunkTerrain::load_done);
@@ -274,6 +285,7 @@ void ChunkTerrain::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_surface_material", "surface_material"), &ChunkTerrain::set_surface_material);
 	ClassDB::bind_method(D_METHOD("get_surface_material"), &ChunkTerrain::get_surface_material);
 
+	ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "player", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Spatial"), "set_player_path", "get_player_path");
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "noise", PROPERTY_HINT_RESOURCE_TYPE, "OpenSimplexNoise"), "set_noise", "get_noise");
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "surface_material", PROPERTY_HINT_RESOURCE_TYPE, "ShaderMaterial"), "set_surface_material", "get_surface_material");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "x"), "set_x", "get_x");

@@ -73,7 +73,8 @@ public:
 	void set_surface_material(Ref<ShaderMaterial> surface_material);
     Ref<ShaderMaterial> get_surface_material();
 
-
+    void set_player_path(NodePath path);
+    NodePath get_player_path();
 
 
 
@@ -104,6 +105,7 @@ private:
 	Dictionary chunks;
 	Dictionary unready_chunks;
     bool should_generate;
+    NodePath player_path;
 
 
 };

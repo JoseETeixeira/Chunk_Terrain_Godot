@@ -2,6 +2,15 @@
 
 #include "register_types.h"
 
+#include "core/version.h"
+
+#if VERSION_MAJOR > 3
+#include "core/config/engine.h"
+#else
+#include "core/engine.h"
+#endif
+
+
 #include "core/class_db.h"
 #include "terrain/chunk_terrain.h"
 #include "generator/chunk_generator.h"
