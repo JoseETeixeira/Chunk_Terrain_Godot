@@ -194,9 +194,10 @@ void ChunkTerrain::load_done(Variant variant){
 		chunks[key] = chunk;
 		unready_chunks.erase(key);
 		mtx.unlock();
-		call_deferred("_on_load_done",chunk);
 
 	}
+
+	call_deferred("_on_load_done",chunk);
 
 	//mtx.unlock();
 	//thread.wait_to_finish();
