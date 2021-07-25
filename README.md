@@ -12,7 +12,7 @@ Sometimes simplicity is all you need. This module lets you generate Blocky SDF t
 - This is being currently developed alongside Trials Of Morana, a 3D, procedural, story-driven game. This modules brings speed and ease-of-use to noise terrains.
 
 
-![Blocky screenshot](doc/basic_screenshot.png)
+![Blocky screenshot](doc/blocky.png)
 
 
 ## DOCUMENTATION
@@ -29,12 +29,13 @@ Sometimes simplicity is all you need. This module lets you generate Blocky SDF t
 
 - 07/22/2021 - Auto-generates terrain and threads,clean-up threads
 - 07/23/2021 - Player is automatically found and used once assigned. No scripts are needed anymore
+- 07/25/2021 - Generate water
 
 # TODO:
-- Generate water
+
 - Generate grass
 - Generate trees
 - Let clamping be optional
-- Add noise to water
+- Add noise to grass
 - Add noise to trees
 

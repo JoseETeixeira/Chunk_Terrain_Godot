@@ -45,6 +45,7 @@ public:
     ~ChunkGenerator();
 
 	void generate_chunk();
+	void generate_water();
     //virtual void generate_water();
 
     void set_noise(Ref<OpenSimplexNoise> noise);
@@ -82,6 +83,7 @@ private:
     SurfaceTool *_surface_tool;
     Ref<ShaderMaterial> _surface_material;
 	MeshInstance* mesh_instance;
+	MeshInstance* water_mesh;
 
 
 

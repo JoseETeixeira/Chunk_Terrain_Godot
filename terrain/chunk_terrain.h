@@ -78,6 +78,12 @@ public:
     void set_player_path(NodePath path);
     NodePath get_player_path();
 
+	void set_water_material(Ref<ShaderMaterial> water_material);
+    Ref<ShaderMaterial> get_water_material();
+
+	void set_should_generate_water(bool generate_water);
+    bool get_should_generate_water();
+
 
 
 
@@ -111,6 +117,8 @@ private:
 	Mutex mtx;
 	ThreadPool *pool;
     NodePath player_path;
+	Ref<ShaderMaterial> _water_material;
+	bool should_generate_water;
 
 
 };

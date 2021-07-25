@@ -44,7 +44,9 @@ void ChunkGenerator::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_READY:
 			if(_parent != nullptr){
-
+				if(_parent->get_should_generate_water()){
+					generate_water();
+				}
 				generate_chunk();
 			}
 			break;
@@ -149,6 +151,21 @@ void ChunkGenerator::generate_chunk(){
 
 }
 
+void ChunkGenerator::generate_water(){
+	PlaneMesh *plane_mesh = memnew(PlaneMesh());
+	plane_mesh->set_size(Vector2(_chunk_size, _chunk_size));
+
+	plane_mesh->set_material(_parent->get_water_material());
+
+	water_mesh = memnew(MeshInstance());
+	water_mesh->set_mesh(plane_mesh);
+	water_mesh->set_translation(water_mesh->get_translation()+Vector3(0,0.5,0));
+
+	add_child(water_mesh);
+
+
+}
+
 int ChunkGenerator::get_x(){
 	return _x;
 }
@@ -186,6 +203,7 @@ void ChunkGenerator::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_surface_material"), &ChunkGenerator::get_surface_material);
 
 	ClassDB::bind_method(D_METHOD("generate_chunk"), &ChunkGenerator::generate_chunk);
+	ClassDB::bind_method(D_METHOD("generate_water"), &ChunkGenerator::generate_water);
 
 
 }

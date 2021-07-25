@@ -134,6 +134,21 @@ Ref<ShaderMaterial> ChunkTerrain::get_surface_material() {
 }
 
 
+void ChunkTerrain::set_water_material(Ref<ShaderMaterial> water_material) {
+	if (_water_material == water_material) {
+		return;
+	}
+	_water_material = water_material;
+
+}
+
+
+
+Ref<ShaderMaterial> ChunkTerrain::get_water_material() {
+	return _water_material;
+}
+
+
 
 template <typename T>
 std::string NumberToString ( T Number )
@@ -298,6 +313,14 @@ NodePath ChunkTerrain::get_player_path(){
 	return player_path;
 }
 
+void ChunkTerrain::set_should_generate_water(bool generate_water){
+	should_generate_water = generate_water;
+}
+
+bool ChunkTerrain::get_should_generate_water(){
+	return should_generate_water;
+}
+
 void ChunkTerrain::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("set_x", "x"), &ChunkTerrain::set_x);
@@ -325,9 +348,20 @@ void ChunkTerrain::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_surface_material", "surface_material"), &ChunkTerrain::set_surface_material);
 	ClassDB::bind_method(D_METHOD("get_surface_material"), &ChunkTerrain::get_surface_material);
 
+	ClassDB::bind_method(D_METHOD("set_water_material", "water_material"), &ChunkTerrain::set_water_material);
+	ClassDB::bind_method(D_METHOD("get_water_material"), &ChunkTerrain::get_water_material);
+
+	ClassDB::bind_method(D_METHOD("set_should_generate_water", "generate_water"), &ChunkTerrain::set_should_generate_water);
+	ClassDB::bind_method(D_METHOD("get_should_generate_water"), &ChunkTerrain::get_should_generate_water);
+
+	ADD_GROUP("Terrain", "");
 	ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "player", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Spatial"), "set_player_path", "get_player_path");
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "noise", PROPERTY_HINT_RESOURCE_TYPE, "OpenSimplexNoise"), "set_noise", "get_noise");
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "surface_material", PROPERTY_HINT_RESOURCE_TYPE, "ShaderMaterial"), "set_surface_material", "get_surface_material");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "chunk_size"), "set_chunk_size", "get_chunk_size");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "chunk_amount"), "set_chunk_amount", "get_chunk_amount");
+	ADD_GROUP("Water", "");
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "water_material", PROPERTY_HINT_RESOURCE_TYPE, "ShaderMaterial"), "set_water_material", "get_water_material");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "should_generate_water"), "set_should_generate_water", "get_should_generate_water");
+
 }
