@@ -44,11 +44,6 @@ ChunkTerrain::ChunkTerrain(){
 	set_chunk_amount(16);
 	should_generate = true;
 	pool = ThreadPool::get_singleton();
-	pool->set_use_threads(true);
-	pool->set_thread_count(8);
-	pool->set_thread_fallback_count(4);
-	pool->set_max_time_per_frame(300);
-	pool->set_max_work_per_frame_percent(30);
 	set_process(true);
 }
 
