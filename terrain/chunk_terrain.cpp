@@ -28,6 +28,14 @@ SOFTWARE.
 #include <core/core_string_names.h>
 #include <core/array.h>
 
+template <typename T>
+std::vector<String> get_keys(std::map<String,T> dictionary){
+	std::vector<String> mapString;
+	for(auto const& imap: dictionary)
+    	mapString.push_back(imap.first);
+
+	return mapString;
+}
 
 ChunkTerrain::ChunkTerrain(){
 	set_x(0);
@@ -45,13 +53,9 @@ ChunkTerrain::ChunkTerrain(){
 }
 
 ChunkTerrain::~ChunkTerrain(){
-	Array chunk_keys = chunks.keys();
-	Array unready_chunks_keys = unready_chunks.keys();
+	std::vector<String> chunk_keys = get_keys(chunks);
 	for (int it =0; it<chunk_keys.size(); it++){
-		memdelete(chunks.getptr(chunk_keys[it]));
-	}
-	for (int it =0; it<unready_chunks_keys.size(); it++){
-		memdelete(unready_chunks.getptr(unready_chunks_keys[it]));
+		memdelete(chunks[chunk_keys[it]]);
 	}
 	chunks.clear();
 	unready_chunks.clear();
@@ -149,7 +153,7 @@ void ChunkTerrain::add_chunk(int x_local, int z_local){
 	String xx =  NumberToString(x_local).c_str();
 	String zz =  NumberToString(z_local).c_str();
 	String key = xx + "," + zz;
-	if (chunks.has(key) || unready_chunks.has(key)){
+	if (chunks.find(key)!=chunks.end() || unready_chunks.find(key)!=unready_chunks.end()){
 		return;
 	}
 
@@ -215,12 +219,12 @@ void ChunkTerrain::_on_load_done(Variant variant){
 
 }
 
-Variant* ChunkTerrain::get_chunk(int x_local, int z_local){
+ChunkGenerator* ChunkTerrain::get_chunk(int x_local, int z_local){
 	String xx =  NumberToString(x_local).c_str();
 	String zz =  NumberToString(z_local).c_str();
 	String key = xx + "," + zz;
-	if(chunks.has(key)){
-		return chunks.getptr(key);
+	if(chunks.find(key)!=chunks.end()){
+		return chunks[key];
 	}
 	return NULL;
 }
@@ -246,12 +250,9 @@ void ChunkTerrain::update_chunks(){
 		for (int j = (p_z - _chunk_amount * 0.5);j< (p_z + _chunk_amount * 0.5); j++){
 
 			add_chunk(i, j);
-			Variant *chunk = get_chunk(i,j);
+			ChunkGenerator *chunk = get_chunk(i,j);
 			if (chunk != NULL){
-				ChunkGenerator *gen = Object::cast_to<ChunkGenerator>(*chunk);
-				if(gen != NULL){
-					gen->set_should_remove(false);
-				}
+				chunk->set_should_remove(false);
 
 			}
 
@@ -264,36 +265,31 @@ void ChunkTerrain::update_chunks(){
 
 
 void ChunkTerrain::clean_up_chunks(){
-	Array chunk_keys = chunks.keys();
-	if(chunk_keys.size() > 0){
-		for (auto it =0; it<chunk_keys.size()-1; it++){
-			if(chunks.has(chunk_keys[it])){
-				ChunkGenerator* chunk = Object::cast_to<ChunkGenerator>(chunks.get(chunk_keys[it],NULL));
-				if(chunk!=NULL){
-					if(chunk->get_should_remove() == true){
-						memdelete(chunk);
-						chunks.erase(chunk_keys[it]);
 
-					}
-				}
+	std::vector<String> chunk_keys = get_keys(chunks);
+	for (int it =0; it<chunk_keys.size(); it++){
+		ChunkGenerator* chunk = chunks[chunk_keys[it]];
+		if(chunk!=NULL){
+			if(chunk->get_should_remove() == true){
+				memdelete(chunk);
+				chunks.erase(chunk_keys[it]);
+
 			}
-
 		}
 	}
+
+
 
 }
 
 
 void ChunkTerrain::reset_chunks(){
-	Array chunk_keys = chunks.keys();
-	if(chunk_keys.size() > 0){
-		for (auto it =0; it<chunk_keys.size()-1; it++){
-			if(chunks.has(chunk_keys[it])){
-				ChunkGenerator* chunk = Object::cast_to<ChunkGenerator>(chunks.get(chunk_keys[it],NULL));
-				if(chunk!=NULL){
-					chunk->set_should_remove(true);
-				}
-			}
+
+	std::vector<String> chunk_keys = get_keys(chunks);
+	for (int it =0; it<chunk_keys.size(); it++){
+		ChunkGenerator* chunk = chunks[chunk_keys[it]];
+		if(chunk!=NULL){
+			chunk->set_should_remove(true);
 
 		}
 	}

@@ -41,6 +41,8 @@ SOFTWARE.
 #include "../../core/os/mutex.h"
 #include <thread>
 #include <mutex>
+#include <map>
+#include <vector>
 #include <sstream>
 #include "../server/thread_pool.h"
 
@@ -89,7 +91,7 @@ private:
 	void add_chunk(int x, int z);
 	void load_chunk(Array arr);
 	void load_done(Variant variant);
-	Variant* get_chunk(int x,int z);
+	ChunkGenerator* get_chunk(int x,int z);
 	void _on_load_done(Variant variant);
 
 
@@ -103,8 +105,8 @@ private:
     int _chunk_amount;
 	Ref<OpenSimplexNoise> _noise;
 	Ref<ShaderMaterial> _surface_material;
-	Dictionary chunks;
-	Dictionary unready_chunks;
+	std::map<String,ChunkGenerator*> chunks;
+	std::map<String,int>  unready_chunks;
     bool should_generate;
 	Mutex mtx;
 	ThreadPool *pool;
