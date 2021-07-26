@@ -50,6 +50,14 @@ ChunkTerrain::ChunkTerrain(){
 }
 
 ChunkTerrain::~ChunkTerrain(){
+	std::vector<String> chunk_keys = get_keys(chunks);
+	for (uint32_t it =0; it<chunk_keys.size(); it++){
+		ChunkGenerator *chunk = chunks[chunk_keys[it]];
+		if(chunk!= NULL){
+			memdelete(chunk);
+		}
+		
+	}
 	chunks.clear();
 	unready_chunks.clear();
 }
