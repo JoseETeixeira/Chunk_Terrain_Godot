@@ -33,7 +33,7 @@ Sometimes simplicity is all you need. This module lets you generate Blocky SDF t
 - 07/26/2021 - Generate grass
 
 # TODO:
-
+- Thread generation
 - Generate trees
 - Let clamping be optional
 - Add noise to grass
