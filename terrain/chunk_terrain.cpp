@@ -44,15 +44,12 @@ ChunkTerrain::ChunkTerrain(){
 	set_chunk_amount(16);
 	should_generate = true;
 	should_generate_water = true;
+	should_generate_grass = true;
 	pool = ThreadPool::get_singleton();
 	set_process(true);
 }
 
 ChunkTerrain::~ChunkTerrain(){
-	std::vector<String> chunk_keys = get_keys(chunks);
-	for (uint32_t it =0; it<chunk_keys.size(); it++){
-		memdelete(chunks[chunk_keys[it]]);
-	}
 	chunks.clear();
 	unready_chunks.clear();
 }
@@ -147,6 +144,21 @@ void ChunkTerrain::set_water_material(Ref<ShaderMaterial> water_material) {
 
 Ref<ShaderMaterial> ChunkTerrain::get_water_material() {
 	return _water_material;
+}
+
+
+void ChunkTerrain::set_grass_material(Ref<ShaderMaterial> grass_material) {
+	if (_grass_material == grass_material) {
+		return;
+	}
+	_grass_material = grass_material;
+
+}
+
+
+
+Ref<ShaderMaterial> ChunkTerrain::get_grass_material() {
+	return _grass_material;
 }
 
 
@@ -330,6 +342,15 @@ Ref<Mesh> ChunkTerrain::get_grass_mesh(){
 	return grass_mesh;
 }
 
+void ChunkTerrain::set_should_generate_grass(bool generate_grass){
+	should_generate_grass = generate_grass;
+}
+
+bool ChunkTerrain::get_should_generate_grass(){
+	return should_generate_grass;
+}
+
+
 void ChunkTerrain::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("set_x", "x"), &ChunkTerrain::set_x);
@@ -366,6 +387,12 @@ void ChunkTerrain::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_should_generate_water", "generate_water"), &ChunkTerrain::set_should_generate_water);
 	ClassDB::bind_method(D_METHOD("get_should_generate_water"), &ChunkTerrain::get_should_generate_water);
 
+	ClassDB::bind_method(D_METHOD("set_should_generate_grass", "generate_grass"), &ChunkTerrain::set_should_generate_grass);
+	ClassDB::bind_method(D_METHOD("get_should_generate_grass"), &ChunkTerrain::get_should_generate_grass);
+
+	ClassDB::bind_method(D_METHOD("set_grass_material", "grass_material"), &ChunkTerrain::set_grass_material);
+	ClassDB::bind_method(D_METHOD("get_grass_material"), &ChunkTerrain::get_grass_material);
+
 	ADD_GROUP("Terrain", "");
 	ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "player", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Spatial"), "set_player_path", "get_player_path");
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "noise", PROPERTY_HINT_RESOURCE_TYPE, "OpenSimplexNoise"), "set_noise", "get_noise");
@@ -377,5 +404,8 @@ void ChunkTerrain::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "should_generate_water"), "set_should_generate_water", "get_should_generate_water");
 	ADD_GROUP("Grass", "");
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "grass_mesh", PROPERTY_HINT_RESOURCE_TYPE, "Mesh"), "set_grass_mesh", "get_grass_mesh");
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "grass_material", PROPERTY_HINT_RESOURCE_TYPE, "ShaderMaterial"), "set_grass_material", "get_grass_material");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "should_generate_grass"), "set_should_generate_grass", "get_should_generate_grass");
+	
 
 }

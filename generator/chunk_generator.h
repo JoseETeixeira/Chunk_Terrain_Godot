@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include <core/reference.h>
 #include "../../scene/3d/mesh_instance.h"
+#include "../../scene/3d/multimesh_instance.h"
 #include "../../scene/resources/mesh_data_tool.h"
 #include "../../scene/resources/surface_tool.h"
 #include "../../scene/resources/material.h"
@@ -46,6 +47,7 @@ public:
 
 	void generate_chunk();
 	void generate_water();
+    void generate_grass();
     //virtual void generate_water();
 
     void set_noise(Ref<OpenSimplexNoise> noise);
@@ -84,6 +86,7 @@ private:
     Ref<ShaderMaterial> _surface_material;
 	MeshInstance* mesh_instance;
 	MeshInstance* water_mesh;
+    MultiMeshInstance* grass_multimesh;
 
 
 

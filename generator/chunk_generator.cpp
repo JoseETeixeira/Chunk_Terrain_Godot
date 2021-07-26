@@ -27,6 +27,7 @@ SOFTWARE.
 #include "../../core/math/vector2.h"
 #include "../../core/math/vector3.h"
 #include "../../scene/resources/mesh.h"
+#include "../../scene/resources/multimesh.h"
 #include <core/core_string_names.h>
 #include "../terrain/chunk_terrain.h"
 
@@ -47,7 +48,14 @@ void ChunkGenerator::_notification(int p_what) {
 				if(_parent->get_should_generate_water()){
 					generate_water();
 				}
+
+				if(_parent->get_should_generate_water()){
+					generate_water();
+				}
 				generate_chunk();
+				if(_parent->get_should_generate_grass()){
+					generate_grass();
+				}
 			}
 			break;
 
@@ -162,6 +170,33 @@ void ChunkGenerator::generate_water(){
 	water_mesh->set_translation(water_mesh->get_translation()+Vector3(0,0.5,0));
 
 	add_child(water_mesh);
+
+
+}
+
+void ChunkGenerator::generate_grass(){
+	MultiMesh *_multimesh = memnew(MultiMesh());
+	_multimesh->set_mesh(_parent->get_grass_mesh());
+	_multimesh->set_transform_format(MultiMesh::TRANSFORM_3D);
+	_multimesh->set_instance_count(_chunk_size*_chunk_size);
+	_multimesh->set_visible_instance_count(_chunk_size*_chunk_size*0.8);
+	grass_multimesh = memnew(MultiMeshInstance());
+	for (int x=0; x < _chunk_size; x++){
+		for(int y=0; y< _chunk_size; y++){
+			Vector3 vertex = _data_tool->get_vertex(x*y);
+			if (vertex.y > 0){
+				_multimesh->set_instance_transform(x*_chunk_size+y,Transform(Basis(), Vector3(vertex)));
+			}else{
+				_multimesh->set_instance_transform(x*_chunk_size+y,Transform(Basis(), Vector3(vertex.x,-400,vertex.y)));
+			}
+
+		}
+	}
+				
+	grass_multimesh->set_multimesh(_multimesh);
+	grass_multimesh->set_material_override(_parent->get_grass_material());
+	
+	add_child(grass_multimesh);
 
 
 }

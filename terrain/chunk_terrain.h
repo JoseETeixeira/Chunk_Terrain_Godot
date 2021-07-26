@@ -88,6 +88,12 @@ public:
 	void set_grass_mesh(Ref<Mesh> mesh);
     Ref<Mesh> get_grass_mesh();
 
+    void set_should_generate_grass(bool generate_grass);
+    bool get_should_generate_grass();
+
+    void set_grass_material(Ref<ShaderMaterial> grass_material);
+    Ref<ShaderMaterial> get_grass_material();
+
 
 
 
@@ -124,6 +130,8 @@ private:
 	Ref<ShaderMaterial> _water_material;
 	bool should_generate_water;
 	Ref<Mesh> grass_mesh;
+    bool should_generate_grass;
+    Ref<ShaderMaterial> _grass_material;
 
 
 };
