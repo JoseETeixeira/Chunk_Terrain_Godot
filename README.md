@@ -37,5 +37,7 @@ Sometimes simplicity is all you need. This module lets you generate Blocky SDF t
 - Generate trees
 - Let clamping be optional
 - Add noise to grass
+- Let user define min and max grass height
 - Add noise to trees
+- Let user define min and max tree height
 
