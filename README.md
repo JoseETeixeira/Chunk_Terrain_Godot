@@ -30,10 +30,10 @@ Sometimes simplicity is all you need. This module lets you generate Blocky SDF t
 - 07/22/2021 - Auto-generates terrain and threads,clean-up threads
 - 07/23/2021 - Player is automatically found and used once assigned. No scripts are needed anymore
 - 07/25/2021 - Generate water
+- 07/26/2021 - Generate grass
 
 # TODO:
 
-- Generate grass
 - Generate trees
 - Let clamping be optional
 - Add noise to grass
