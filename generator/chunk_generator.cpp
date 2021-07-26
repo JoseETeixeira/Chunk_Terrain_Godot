@@ -50,9 +50,7 @@ void ChunkGenerator::_notification(int p_what) {
 				}
 
 				pool->create_execute_job(this, "generate_chunk");
-				if(_parent->get_should_generate_grass()){
-					pool->create_execute_job(this, "generate_grass");
-				}
+				
 			}
 			break;
 
@@ -152,8 +150,13 @@ void ChunkGenerator::generate_chunk(){
 	mesh_instance = memnew(MeshInstance());
 	mesh_instance->set_mesh(_surface_tool->commit());
 	mesh_instance->create_trimesh_collision();
-	add_child(mesh_instance);
+	if(is_inside_tree()){
+		add_child(mesh_instance);
+	}	
 	mtx.unlock();
+	if(_parent->get_should_generate_grass()){
+		generate_grass();
+	}
 }
 
 void ChunkGenerator::generate_water(){
@@ -166,8 +169,9 @@ void ChunkGenerator::generate_water(){
 	water_mesh = memnew(MeshInstance());
 	water_mesh->set_mesh(plane_mesh);
 	water_mesh->set_translation(water_mesh->get_translation()+Vector3(0,0.5,0));
-
-	add_child(water_mesh);
+	if(is_inside_tree()){
+		add_child(water_mesh);
+	}	
 	mtx.unlock();
 
 
@@ -198,10 +202,11 @@ void ChunkGenerator::generate_grass(){
 
 	grass_multimesh->set_multimesh(_multimesh);
 	grass_multimesh->set_material_override(_parent->get_grass_material());
-
-	add_child(grass_multimesh);
+	if(is_inside_tree()){
+		add_child(grass_multimesh);
+	}	
 	mtx.unlock();
-
+	
 
 }
 

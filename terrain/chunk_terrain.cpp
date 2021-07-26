@@ -224,7 +224,9 @@ void ChunkTerrain::load_done(Variant variant){
 	ChunkGenerator *chunk = Object::cast_to<ChunkGenerator>(variant);
 	if(chunk!=NULL){
 		mtx.lock();
-		add_child(chunk);
+		if(is_inside_tree()){
+			add_child(chunk);
+		}	
 		String xx =  NumberToString(chunk->get_x()/get_chunk_size()).c_str();
 		String zz =  NumberToString(chunk->get_z()/get_chunk_size()).c_str();
 		String key = xx + "," + zz;
