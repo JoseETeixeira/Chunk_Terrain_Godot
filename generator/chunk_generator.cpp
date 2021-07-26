@@ -199,7 +199,7 @@ void ChunkGenerator::generate_grass(){
 	grass_multimesh->set_multimesh(_multimesh);
 	grass_multimesh->set_material_override(_parent->get_grass_material());
 
-	get_child(0)->add_child(grass_multimesh);
+	add_child(grass_multimesh);
 	mtx.unlock();
 
 
