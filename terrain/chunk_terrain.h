@@ -39,6 +39,7 @@ SOFTWARE.
 #include "../../core/os/thread.h"
 #include "../../core/os/semaphore.h"
 #include "../../core/os/mutex.h"
+#include "../../scene/3d/mesh_instance.h"
 #include <thread>
 #include <mutex>
 #include <map>
@@ -84,6 +85,9 @@ public:
 	void set_should_generate_water(bool generate_water);
     bool get_should_generate_water();
 
+	void set_grass_mesh(Ref<Mesh> mesh);
+    Ref<Mesh> get_grass_mesh();
+
 
 
 
@@ -119,6 +123,7 @@ private:
     NodePath player_path;
 	Ref<ShaderMaterial> _water_material;
 	bool should_generate_water;
+	Ref<Mesh> grass_mesh;
 
 
 };

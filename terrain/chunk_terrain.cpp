@@ -43,6 +43,7 @@ ChunkTerrain::ChunkTerrain(){
 	set_chunk_size(32);
 	set_chunk_amount(16);
 	should_generate = true;
+	should_generate_water = true;
 	pool = ThreadPool::get_singleton();
 	set_process(true);
 }
@@ -321,6 +322,14 @@ bool ChunkTerrain::get_should_generate_water(){
 	return should_generate_water;
 }
 
+void ChunkTerrain::set_grass_mesh(Ref<Mesh> mesh){
+	grass_mesh = mesh;
+}
+
+Ref<Mesh> ChunkTerrain::get_grass_mesh(){
+	return grass_mesh;
+}
+
 void ChunkTerrain::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("set_x", "x"), &ChunkTerrain::set_x);
@@ -351,6 +360,9 @@ void ChunkTerrain::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_water_material", "water_material"), &ChunkTerrain::set_water_material);
 	ClassDB::bind_method(D_METHOD("get_water_material"), &ChunkTerrain::get_water_material);
 
+	ClassDB::bind_method(D_METHOD("set_grass_mesh", "grass_mesh"), &ChunkTerrain::set_grass_mesh);
+	ClassDB::bind_method(D_METHOD("get_grass_mesh"), &ChunkTerrain::get_grass_mesh);
+
 	ClassDB::bind_method(D_METHOD("set_should_generate_water", "generate_water"), &ChunkTerrain::set_should_generate_water);
 	ClassDB::bind_method(D_METHOD("get_should_generate_water"), &ChunkTerrain::get_should_generate_water);
 
@@ -363,5 +375,7 @@ void ChunkTerrain::_bind_methods() {
 	ADD_GROUP("Water", "");
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "water_material", PROPERTY_HINT_RESOURCE_TYPE, "ShaderMaterial"), "set_water_material", "get_water_material");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "should_generate_water"), "set_should_generate_water", "get_should_generate_water");
+	ADD_GROUP("Grass", "");
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "grass_mesh", PROPERTY_HINT_RESOURCE_TYPE, "Mesh"), "set_grass_mesh", "get_grass_mesh");
 
 }
