@@ -32,13 +32,13 @@ SOFTWARE.
 #include "../terrain/chunk_terrain.h"
 
 ChunkGenerator::ChunkGenerator(){
-
+	pool = ThreadPool::get_singleton();
 }
 
 ChunkGenerator::ChunkGenerator( int x, int z){
 	set_x(x);
 	set_z(z);
-
+	pool = ThreadPool::get_singleton();
 }
 
 void ChunkGenerator::_notification(int p_what) {
@@ -46,15 +46,12 @@ void ChunkGenerator::_notification(int p_what) {
 		case NOTIFICATION_READY:
 			if(_parent != nullptr){
 				if(_parent->get_should_generate_water()){
-					generate_water();
+					pool->create_execute_job(this, "generate_water");
 				}
 
-				if(_parent->get_should_generate_water()){
-					generate_water();
-				}
-				generate_chunk();
+				pool->create_execute_job(this, "generate_chunk");
 				if(_parent->get_should_generate_grass()){
-					generate_grass();
+					pool->create_execute_job(this, "generate_grass");
 				}
 			}
 			break;
@@ -119,7 +116,7 @@ void ChunkGenerator::set_chunk_size(int chunk_size){
 }
 
 void ChunkGenerator::generate_chunk(){
-
+	mtx.lock();
 	PlaneMesh *plane_mesh = memnew(PlaneMesh());
 	plane_mesh->set_size(Vector2(_chunk_size, _chunk_size));
 	plane_mesh->set_subdivide_depth(_chunk_size * 0.5);
@@ -156,10 +153,11 @@ void ChunkGenerator::generate_chunk(){
 	mesh_instance->set_mesh(_surface_tool->commit());
 	mesh_instance->create_trimesh_collision();
 	add_child(mesh_instance);
-
+	mtx.unlock();
 }
 
 void ChunkGenerator::generate_water(){
+	mtx.lock();
 	PlaneMesh *plane_mesh = memnew(PlaneMesh());
 	plane_mesh->set_size(Vector2(_chunk_size, _chunk_size));
 
@@ -170,11 +168,13 @@ void ChunkGenerator::generate_water(){
 	water_mesh->set_translation(water_mesh->get_translation()+Vector3(0,0.5,0));
 
 	add_child(water_mesh);
+	mtx.unlock();
 
 
 }
 
 void ChunkGenerator::generate_grass(){
+	mtx.lock();
 	MultiMesh *_multimesh = memnew(MultiMesh());
 	_multimesh->set_mesh(_parent->get_grass_mesh());
 	_multimesh->set_transform_format(MultiMesh::TRANSFORM_3D);
@@ -183,20 +183,24 @@ void ChunkGenerator::generate_grass(){
 	grass_multimesh = memnew(MultiMeshInstance());
 	for (int x=0; x < _chunk_size; x++){
 		for(int y=0; y< _chunk_size; y++){
-			Vector3 vertex = _data_tool->get_vertex(x*y);
-			if (vertex.y > 0){
-				_multimesh->set_instance_transform(x*_chunk_size+y,Transform(Basis(), Vector3(vertex)));
-			}else{
-				_multimesh->set_instance_transform(x*_chunk_size+y,Transform(Basis(), Vector3(vertex.x,-400,vertex.y)));
+			if(_data_tool->get_vertex_count()> x*y){
+				Vector3 vertex = _data_tool->get_vertex(x*y);
+				if (vertex.y > 0){
+					_multimesh->set_instance_transform(x*_chunk_size+y,Transform(Basis(), Vector3(vertex)));
+				}else{
+					_multimesh->set_instance_transform(x*_chunk_size+y,Transform(Basis(), Vector3(vertex.x,-400,vertex.y)));
+				}
 			}
+
 
 		}
 	}
-				
+
 	grass_multimesh->set_multimesh(_multimesh);
 	grass_multimesh->set_material_override(_parent->get_grass_material());
-	
-	add_child(grass_multimesh);
+
+	get_child(0)->add_child(grass_multimesh);
+	mtx.unlock();
 
 
 }
@@ -239,6 +243,7 @@ void ChunkGenerator::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("generate_chunk"), &ChunkGenerator::generate_chunk);
 	ClassDB::bind_method(D_METHOD("generate_water"), &ChunkGenerator::generate_water);
+	ClassDB::bind_method(D_METHOD("generate_grass"), &ChunkGenerator::generate_grass);
 
 
 }

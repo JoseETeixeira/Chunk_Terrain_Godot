@@ -56,7 +56,7 @@ ChunkTerrain::~ChunkTerrain(){
 		if(chunk!= NULL){
 			memdelete(chunk);
 		}
-		
+
 	}
 	chunks.clear();
 	unready_chunks.clear();
@@ -202,6 +202,7 @@ void ChunkTerrain::add_chunk(int x_local, int z_local){
 }
 
 void ChunkTerrain::load_chunk(Array arr){
+	mtx.lock();
 	int x_local = arr.pop_front();
 	int z_local = arr.pop_front();
 	int chunk_size = arr.pop_front();
@@ -211,6 +212,7 @@ void ChunkTerrain::load_chunk(Array arr){
 	chunk->set_z(z_local * chunk_size);
 	chunk->set_chunk_size(chunk_size);
 	chunk->set_translation(Vector3(x_local*chunk_size,0,z_local*chunk_size));
+	mtx.unlock();
 
 	load_done(chunk);
 
@@ -414,6 +416,6 @@ void ChunkTerrain::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "grass_mesh", PROPERTY_HINT_RESOURCE_TYPE, "Mesh"), "set_grass_mesh", "get_grass_mesh");
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "grass_material", PROPERTY_HINT_RESOURCE_TYPE, "ShaderMaterial"), "set_grass_material", "get_grass_material");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "should_generate_grass"), "set_should_generate_grass", "get_should_generate_grass");
-	
+
 
 }

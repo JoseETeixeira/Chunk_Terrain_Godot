@@ -35,6 +35,8 @@ SOFTWARE.
 #include "../util/math/vector3i.h"
 #include "../../modules/opensimplex/open_simplex_noise.h"
 #include <scene/3d/spatial.h>
+#include "../server/thread_pool.h"
+#include "../../core/os/mutex.h"
 
 class ChunkTerrain;
 
@@ -87,7 +89,8 @@ private:
 	MeshInstance* mesh_instance;
 	MeshInstance* water_mesh;
     MultiMeshInstance* grass_multimesh;
-
+	ThreadPool *pool;
+	Mutex mtx;
 
 
     ChunkTerrain *_parent;
