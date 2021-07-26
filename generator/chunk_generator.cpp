@@ -114,7 +114,6 @@ void ChunkGenerator::set_chunk_size(int chunk_size){
 }
 
 void ChunkGenerator::generate_chunk(){
-	mtx.lock();
 	PlaneMesh *plane_mesh = memnew(PlaneMesh());
 	plane_mesh->set_size(Vector2(_chunk_size, _chunk_size));
 	plane_mesh->set_subdivide_depth(_chunk_size * 0.5);
@@ -152,15 +151,13 @@ void ChunkGenerator::generate_chunk(){
 	mesh_instance->create_trimesh_collision();
 	if(is_inside_tree()){
 		add_child(mesh_instance);
+		call_deferred("generate_grass");
 	}	
-	mtx.unlock();
-	if(_parent->get_should_generate_grass()){
-		generate_grass();
-	}
+	
+	
 }
 
 void ChunkGenerator::generate_water(){
-	mtx.lock();
 	PlaneMesh *plane_mesh = memnew(PlaneMesh());
 	plane_mesh->set_size(Vector2(_chunk_size, _chunk_size));
 
@@ -172,13 +169,12 @@ void ChunkGenerator::generate_water(){
 	if(is_inside_tree()){
 		add_child(water_mesh);
 	}	
-	mtx.unlock();
+	
 
 
 }
 
 void ChunkGenerator::generate_grass(){
-	mtx.lock();
 	MultiMesh *_multimesh = memnew(MultiMesh());
 	_multimesh->set_mesh(_parent->get_grass_mesh());
 	_multimesh->set_transform_format(MultiMesh::TRANSFORM_3D);
@@ -202,10 +198,7 @@ void ChunkGenerator::generate_grass(){
 
 	grass_multimesh->set_multimesh(_multimesh);
 	grass_multimesh->set_material_override(_parent->get_grass_material());
-	if(is_inside_tree()){
-		add_child(grass_multimesh);
-	}	
-	mtx.unlock();
+	add_child(grass_multimesh);
 	
 
 }

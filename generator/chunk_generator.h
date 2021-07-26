@@ -90,7 +90,6 @@ private:
 	MeshInstance* water_mesh;
     MultiMeshInstance* grass_multimesh;
 	ThreadPool *pool;
-	Mutex mtx;
 
 
     ChunkTerrain *_parent;
