@@ -50,7 +50,7 @@ ChunkTerrain::ChunkTerrain(){
 
 ChunkTerrain::~ChunkTerrain(){
 	std::vector<String> chunk_keys = get_keys(chunks);
-	for (int it =0; it<chunk_keys.size(); it++){
+	for (uint32_t it =0; it<chunk_keys.size(); it++){
 		memdelete(chunks[chunk_keys[it]]);
 	}
 	chunks.clear();
@@ -278,7 +278,7 @@ void ChunkTerrain::update_chunks(){
 void ChunkTerrain::clean_up_chunks(){
 
 	std::vector<String> chunk_keys = get_keys(chunks);
-	for (int it =0; it<chunk_keys.size(); it++){
+	for (uint32_t it =0; it<chunk_keys.size(); it++){
 		ChunkGenerator* chunk = chunks[chunk_keys[it]];
 		if(chunk!=NULL){
 			if(chunk->get_should_remove() == true){
@@ -297,7 +297,7 @@ void ChunkTerrain::clean_up_chunks(){
 void ChunkTerrain::reset_chunks(){
 
 	std::vector<String> chunk_keys = get_keys(chunks);
-	for (int it =0; it<chunk_keys.size(); it++){
+	for (uint32_t it =0; it<chunk_keys.size(); it++){
 		ChunkGenerator* chunk = chunks[chunk_keys[it]];
 		if(chunk!=NULL){
 			chunk->set_should_remove(true);
